@@ -209,7 +209,14 @@ function cldashboard_color_with_alpha( $color, $alpha ) {
  */
 function cldashboard_is_udb_installed() {
 
-	return defined( 'ULTIMATE_DASHBOARD_PLUGIN_VERSION' ) || file_exists( WP_PLUGIN_DIR . '/ultimate-dashboard/ultimate-dashboard.php' );
+	$installed = defined( 'ULTIMATE_DASHBOARD_PLUGIN_VERSION' ) || file_exists( WP_PLUGIN_DIR . '/ultimate-dashboard/ultimate-dashboard.php' );
+
+	/**
+	 * Filters whether Ultimate Dashboard counts as installed (e.g. to preview the migration prompts).
+	 *
+	 * @param bool $installed Whether Ultimate Dashboard is installed.
+	 */
+	return (bool) apply_filters( 'cldashboard_is_udb_installed', $installed );
 
 }
 

@@ -58,21 +58,37 @@
 	min-height: var(--heatbox-control-height);
 	margin: 0;
 	padding: 0 0 0 40px;
+	border-color: var(--heatbox-border);
 	border-radius: var(--heatbox-radius-control);
+	color: var(--heatbox-text);
+}
+
+/* Bordered like the inputs, not like a blue button */
+.cldashboard-settings-page .wp-picker-container .button.wp-color-result:hover,
+.cldashboard-settings-page .wp-picker-container .button.wp-color-result:focus,
+.cldashboard-settings-page .wp-picker-container.wp-picker-active .button.wp-color-result {
+	border-color: var(--heatbox-control-border);
+	color: var(--heatbox-text);
 }
 
 .cldashboard-settings-page .wp-color-result .wp-color-result-text {
 	height: 100%;
 	padding: 0 12px;
 	line-height: calc(var(--heatbox-control-height) - 2px);
-	border-radius: 0 calc(var(--heatbox-radius-control) - 1px) calc(var(--heatbox-radius-control) - 1px) 0;
+	background: #fff;
+	border-left-color: var(--heatbox-border);
+	border-radius: 0;
 }
 
-/* The color swatch (from the alpha script) fills the whole swatch area */
+/* The color swatch (from the alpha script) fills the swatch area; the button's rounded corners clip it */
+.cldashboard-settings-page .wp-picker-container .button.wp-color-result {
+	overflow: hidden;
+}
+
 .cldashboard-settings-page .wp-color-result .color-alpha {
 	width: 40px !important;
 	height: 100% !important;
-	border-radius: calc(var(--heatbox-radius-control) - 1px) 0 0 calc(var(--heatbox-radius-control) - 1px);
+	border-radius: 0 !important;
 }
 
 .cldashboard-settings-page .wp-picker-input-wrap .button {
