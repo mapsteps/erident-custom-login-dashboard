@@ -280,7 +280,7 @@ class Setup {
 				),
 				'i18n'        => array(
 					'confirm'        => __( 'Migrate to Ultimate Dashboard now? Please stay on this page until the migration is complete.', 'erident-custom-login-and-dashboard' ),
-					'uninstalling'   => __( 'Moving your settings & removing Erident Custom Login & Dashboard...', 'erident-custom-login-and-dashboard' ),
+					'uninstalling'   => __( 'Moving your settings and removing Custom Login Page & Dashboard...', 'erident-custom-login-and-dashboard' ),
 					'checking'       => __( 'Checking if Ultimate Dashboard can be installed...', 'erident-custom-login-and-dashboard' ),
 					'installing'     => __( 'Installing Ultimate Dashboard...', 'erident-custom-login-and-dashboard' ),
 					'installed'      => __( 'Ultimate Dashboard installed.', 'erident-custom-login-and-dashboard' ),

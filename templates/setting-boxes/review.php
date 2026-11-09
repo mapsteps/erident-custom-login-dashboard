@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || die( "Can't access directly" );
 	<h2><?php esc_html_e( 'Leave a review', 'erident-custom-login-and-dashboard' ); ?></h2>
 	<div class="heatbox-content">
 		<p class="description">
-			<?php esc_html_e( 'Do you enjoy Erident Custom Login and Dashboard? Help us spread the word and leave a review in the official WordPress repository.', 'erident-custom-login-and-dashboard' ); ?>
+			<?php esc_html_e( 'Do you enjoy Custom Login Page & Dashboard? Help us spread the word and leave a review in the official WordPress repository.', 'erident-custom-login-and-dashboard' ); ?>
 		</p>
 		<a href="https://wordpress.org/support/plugin/erident-custom-login-and-dashboard/reviews/#new-post" target="_blank" class="button">
 			<?php esc_html_e( 'Sure, you deserve it!', 'erident-custom-login-and-dashboard' ); ?>

@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Erident Custom Login and Dashboard
+ * Plugin Name: Custom Login Page & Dashboard
  * Plugin URI: https://mapsteps.com
  * Description: Customize the WordPress login screen: logo, background, login form & links. Plus your own admin footer text.
  * Version: 5.0
