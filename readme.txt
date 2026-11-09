@@ -98,6 +98,7 @@ No. Settings are only deleted when you delete the plugin and *Remove Data on Uni
 == Changelog ==
 = 5.0 November 09, 2026 =
 * Tweak: Renamed to Erident Custom Login Page & Dashboard
+* Tweak: Refreshed logo
 * New: Redesigned, accessible settings page
 * New: The login form settings are combined in one box
 * Tweak: The migration to Ultimate Dashboard is offered in a box on the settings page and a dismissible notice on the Dashboard & Plugins screens, instead of on every admin page
