@@ -24,7 +24,7 @@ $cldashboard_learn_more_url = 'https://ultimatedashboard.io/blog/erident-custom-
 		<h2><?php esc_html_e( 'Erident is now Ultimate Dashboard', 'erident-custom-login-and-dashboard' ); ?></h2>
 		<div class="heatbox-content cldashboard-migration-content">
 			<p><?php esc_html_e( 'Erident Custom Login & Dashboard is in maintenance mode: it gets security & compatibility fixes, but no new features. New login features go into Ultimate Dashboard, which is free too.', 'erident-custom-login-and-dashboard' ); ?></p>
-			<img class="cldashboard-migration-image" src="<?php echo esc_url( CUSTOM_LOGIN_DASHBOARD_PLUGIN_URL ); ?>/assets/images/login-customizer.jpg" width="1440" height="810" alt="<?php esc_attr_e( 'The Ultimate Dashboard login customizer: settings on the left, a live preview of the login screen on the right.', 'erident-custom-login-and-dashboard' ); ?>">
+			<img class="cldashboard-migration-image" src="<?php echo esc_url( CUSTOM_LOGIN_DASHBOARD_PLUGIN_URL ); ?>/assets/images/login-customizer.jpg" width="1440" height="600" alt="<?php esc_attr_e( 'The Ultimate Dashboard login customizer: settings on the left, a live preview of the login screen on the right.', 'erident-custom-login-and-dashboard' ); ?>">
 			<ul class="cldashboard-migration-benefits">
 				<li><?php esc_html_e( 'Customize your login screen live in the WordPress Customizer, with more options.', 'erident-custom-login-and-dashboard' ); ?></li>
 				<li><?php esc_html_e( 'Your Erident settings move over automatically.', 'erident-custom-login-and-dashboard' ); ?></li>
