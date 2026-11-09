@@ -1,4 +1,4 @@
-=== Custom Login Page & Dashboard ===
+=== Erident Custom Login Page & Dashboard ===
 Contributors: davidvongries, libinvbabu
 Tags: login, custom login, login page, login customizer, admin footer
 Requires at least: 5.3
@@ -12,11 +12,11 @@ Customize the WordPress login screen: logo, background, login form & links. Plus
 
 == Description ==
 
-**Custom Login Page & Dashboard** (formerly Erident Custom Login and Dashboard) is a simple way to customize the **WordPress login screen**. Add your logo, set a background, style the login form and change the admin footer text – all from one settings page under *Settings → Custom Login & Dashboard*.
+**Erident Custom Login Page & Dashboard** is a simple way to customize the **WordPress login screen**. Add your logo, set a background, style the login form and change the admin footer text – all from one settings page under *Settings → Custom Login & Dashboard*.
 
-**Custom Login Page & Dashboard is now part of [Ultimate Dashboard](https://ultimatedashboard.io/?utm_source=erident&utm_medium=repository&utm_campaign=udb).** The plugin is in maintenance mode: it gets security & compatibility updates, but no new features. New login features go into Ultimate Dashboard, which is free too. Already using it? Move your settings over with the one-click migration (see below).
+**Erident is now part of [Ultimate Dashboard](https://ultimatedashboard.io/?utm_source=erident&utm_medium=repository&utm_campaign=udb).** Erident is in maintenance mode: it gets security & compatibility updates, but no new features. New login features go into Ultimate Dashboard, which is free too. Already using Erident? Move your settings over with the one-click migration (see below).
 
-== Why choose Custom Login Page & Dashboard? ==
+== Why choose Erident? ==
 
 = 🎨 Your brand on the login screen =
 Replace the WordPress logo with your own, set its size and change its title.
@@ -47,7 +47,7 @@ Move your settings to another site with a .json file.
 
 [Ultimate Dashboard](https://ultimatedashboard.io/?utm_source=erident&utm_medium=repository&utm_campaign=udb) lets you customize the login screen **live in the WordPress Customizer**, with more options, plus tools to customize the whole WordPress admin.
 
-The one-click migration on the plugin's settings page installs Ultimate Dashboard, moves your settings over and removes Custom Login Page & Dashboard. Your login screen looks almost the same, and you can keep customizing it live.
+The one-click migration on the Erident settings page installs Ultimate Dashboard, moves your Erident settings over and removes Erident. Your login screen looks almost the same, and you can keep customizing it live.
 
 ---------
 
@@ -55,13 +55,13 @@ The one-click migration on the plugin's settings page installs Ultimate Dashboar
 
 **Import & export:** under *Tools*, export your settings as a .json file and import them on another site.
 
-**Remove data on uninstall:** turn on *Remove Data on Uninstall* in the *Dashboard* tab to delete all plugin settings when you delete the plugin.
+**Remove data on uninstall:** turn on *Remove Data on Uninstall* in the *Dashboard* tab to delete all Erident settings when you delete the plugin.
 
 ---------
 
 === What's next? ===
 
-If you like Custom Login Page & Dashboard, make sure to check out our other products:
+If you like Erident, make sure to check out our other products:
 
 * **[Ultimate Dashboard](https://ultimatedashboard.io/?utm_source=erident&utm_medium=repository&utm_campaign=udb)** - The #1 WordPress plugin to customize your WordPress dashboard and admin area.
 * **[WP Video Popup](https://wp-video-popup.com/?utm_source=erident&utm_medium=repository&utm_campaign=wp_video_popup)** - Add a YouTube, Vimeo or Rumble video popup to WordPress. Lightweight, privacy-friendly lightbox that works with any page builder.
@@ -69,7 +69,7 @@ If you like Custom Login Page & Dashboard, make sure to check out our other prod
 * **[Better Admin Bar](https://betteradminbar.com/?utm_source=erident&utm_medium=repository&utm_campaign=bab)** - The plugin to make your clients enjoy WordPress. It replaces the default admin bar to provide the best possible user experience when editing & navigating a website.
 
 == Installation ==
-1. In your WordPress admin, go to *Plugins → Add New Plugin* and search for "Custom Login Page & Dashboard".
+1. In your WordPress admin, go to *Plugins → Add New Plugin* and search for "Erident Custom Login".
 2. Click *Install Now*, then *Activate*.
 3. Go to *Settings → Custom Login & Dashboard* to customize your login screen.
 
@@ -78,11 +78,11 @@ If you like Custom Login Page & Dashboard, make sure to check out our other prod
 = How do I change the logo on the WordPress login page? =
 Go to *Settings → Custom Login & Dashboard*, choose an image under *Logo* and set its width and height. Click *Save Changes*.
 
-= Is Custom Login Page & Dashboard still maintained? =
+= Is Erident still maintained? =
 Yes, with security & compatibility updates. New features go into [Ultimate Dashboard](https://ultimatedashboard.io/?utm_source=erident&utm_medium=repository&utm_campaign=udb), which also has a live login customizer.
 
 = What happens when I migrate to Ultimate Dashboard? =
-Ultimate Dashboard is installed and activated, your settings are moved over and Custom Login Page & Dashboard is removed. Your login screen looks almost the same, and you can keep customizing it live in the WordPress Customizer.
+Ultimate Dashboard is installed and activated, your Erident settings are moved over and Erident is removed. Your login screen looks almost the same, and you can keep customizing it live in the WordPress Customizer.
 
 = I already have Ultimate Dashboard installed. Can I still migrate? =
 The migration only runs if Ultimate Dashboard isn't installed yet, so your existing Ultimate Dashboard settings are never overwritten.
@@ -97,7 +97,7 @@ No. Settings are only deleted when you delete the plugin and *Remove Data on Uni
 
 == Changelog ==
 = 5.0 November 09, 2026 =
-* Tweak: Renamed from Erident Custom Login and Dashboard to Custom Login Page & Dashboard
+* Tweak: Renamed to Erident Custom Login Page & Dashboard
 * New: Redesigned, accessible settings page
 * New: The login form settings are combined in one box
 * Tweak: The migration to Ultimate Dashboard is offered in a box on the settings page and a dismissible notice on the Dashboard & Plugins screens, instead of on every admin page

@@ -86,7 +86,7 @@ class Migration {
 	private function start() {
 
 		if ( cldashboard_is_udb_installed() ) {
-			wp_send_json_error( __( 'Ultimate Dashboard is already installed, so the migration cannot run. Your settings are unchanged.', 'erident-custom-login-and-dashboard' ), 409 );
+			wp_send_json_error( __( 'Ultimate Dashboard is already installed, so the migration cannot run. Your Erident settings are unchanged.', 'erident-custom-login-and-dashboard' ), 409 );
 		}
 
 		// Erident gets deleted & Ultimate Dashboard installed, so WordPress must be able to write plugin files without asking for credentials.
@@ -147,7 +147,7 @@ class Migration {
 
 		if ( ! cldashboard_is_udb_installed() ) {
 			delete_option( self::LOCK );
-			wp_send_json_error( __( 'Ultimate Dashboard is not installed. Your settings are unchanged.', 'erident-custom-login-and-dashboard' ), 409 );
+			wp_send_json_error( __( 'Ultimate Dashboard is not installed. Your Erident settings are unchanged.', 'erident-custom-login-and-dashboard' ), 409 );
 		}
 
 		$this->migrate_settings();
@@ -169,7 +169,7 @@ class Migration {
 			wp_send_json_success(
 				[
 					'removed' => true,
-					'message' => __( 'Settings moved to Ultimate Dashboard and Custom Login Page & Dashboard removed.', 'erident-custom-login-and-dashboard' ),
+					'message' => __( 'Settings moved to Ultimate Dashboard and Erident Custom Login Page & Dashboard removed.', 'erident-custom-login-and-dashboard' ),
 				]
 			);
 		}
@@ -178,7 +178,7 @@ class Migration {
 		wp_send_json_success(
 			[
 				'removed' => false,
-				'message' => __( 'Settings moved to Ultimate Dashboard. Custom Login Page & Dashboard is deactivated, but could not be deleted. You can delete it on the Plugins screen.', 'erident-custom-login-and-dashboard' ),
+				'message' => __( 'Settings moved to Ultimate Dashboard. Erident Custom Login Page & Dashboard is deactivated, but could not be deleted. You can delete it on the Plugins screen.', 'erident-custom-login-and-dashboard' ),
 			]
 		);
 
