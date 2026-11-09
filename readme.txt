@@ -92,9 +92,8 @@ No. Settings are only deleted when you delete the plugin and *Remove Data on Uni
 
 == Screenshots ==
 1. Settings Page
-2. Login Screen with the Default Settings
-3. Customized WordPress Login Screen (Example 1)
-4. Customized WordPress Login Screen (Example 2)
+2. Customized WordPress Login Screen (Example 1)
+3. Customized WordPress Login Screen (Example 2)
 
 == Changelog ==
 = 5.0 November 09, 2026 =
