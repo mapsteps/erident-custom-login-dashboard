@@ -154,7 +154,7 @@ function cldashboard_number_field( $settings, $name, $label, $args = [] ) {
 	?>
 
 	<input type="number" min="0" step="1" name="<?php echo esc_attr( $name ); ?>" id="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( cldashboard_number_value( $settings, $name ) ); ?>" class="small-text general-setting-field"<?php echo cldashboard_field_describedby( $name, $args ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in the function. ?>>
-	<span class="cldashboard-unit">px</span>
+	<span class="heatbox-unit">px</span>
 
 	<?php
 	cldashboard_field_row_end();
@@ -246,13 +246,11 @@ function cldashboard_select_field( $settings, $name, $label, $options, $args = [
  */
 function cldashboard_toggle_field( $settings, $name, $label, $args = [] ) {
 
-	$value = strtolower( cldashboard_field_value( $settings, $name ) );
-
 	cldashboard_field_row_start( $name, $label, $args );
 	?>
 
 	<label class="toggle-switch">
-		<input type="checkbox" name="<?php echo esc_attr( $name ); ?>" id="<?php echo esc_attr( $name ); ?>" value="1" class="general-setting-field" <?php checked( '' !== $value && '0' !== $value && 'no' !== $value ); ?><?php echo cldashboard_field_describedby( $name, $args ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in the function. ?>>
+		<input type="checkbox" name="<?php echo esc_attr( $name ); ?>" id="<?php echo esc_attr( $name ); ?>" value="1" class="general-setting-field" <?php checked( cldashboard_is_on( cldashboard_field_value( $settings, $name ) ) ); ?><?php echo cldashboard_field_describedby( $name, $args ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in the function. ?>>
 		<span class="switch-track"><span class="switch-thumb"></span></span>
 	</label>
 

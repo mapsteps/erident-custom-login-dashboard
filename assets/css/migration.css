@@ -33,7 +33,7 @@
 
 /* Settings page box */
 .cldashboard-migration-box {
-	border-inline-start: 4px solid var(--heatbox-primary, #2271b1);
+	border-inline-start: 4px solid var(--heatbox-accent);
 }
 
 .cldashboard-migration-image {
@@ -41,8 +41,8 @@
 	width: 100%;
 	height: auto;
 	margin: 16px 0;
-	border: 1px solid #dcdcde;
-	border-radius: 8px;
+	border: 1px solid var(--heatbox-divider);
+	border-radius: var(--heatbox-radius);
 }
 
 .cldashboard-migration-benefits {
@@ -80,12 +80,12 @@
 }
 
 .cldashboard-migration-status .dashicons {
-	color: #00a32a;
+	color: var(--heatbox-success, #00a32a);
 }
 
 .cldashboard-migration-status.migration-failed,
 .cldashboard-migration-status.migration-failed .dashicons {
-	color: #b32d2e;
+	color: var(--heatbox-error, #d63638);
 }
 
 .cldashboard-migration-status .loader,
@@ -99,7 +99,7 @@
 	width: 14px;
 	height: 14px;
 	margin: 3px;
-	border: 2px solid #c3c4c7;
+	border: 2px solid var(--heatbox-border, #c3c4c7);
 	border-left-color: transparent;
 	border-radius: 50%;
 	animation: cldashboardSpin 0.6s infinite linear;

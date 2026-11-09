@@ -7,47 +7,24 @@
 
 namespace CustomLoginDashboard;
 
+defined( 'ABSPATH' ) || die( "Can't access directly" );
+
 /**
- * Setup Better Admin Bar.
+ * Admin side: settings page, export & import, migration notice.
  */
 class Setup {
 
 	/**
-	 * The class instance.
-	 *
-	 * @var object
-	 */
-	public static $instance;
-
-	/**
-	 * Get instance of the class.
-	 */
-	public static function get_instance() {
-
-		if ( null === self::$instance ) {
-			self::$instance = new self();
-		}
-
-		return self::$instance;
-
-	}
-
-	/**
-	 * Init the class setup.
+	 * Hook in once all plugins are loaded.
 	 */
 	public static function init() {
-		self::$instance = new self();
 
-		add_action( 'plugins_loaded', array( self::$instance, 'setup' ) );
+		add_action( 'plugins_loaded', array( new self(), 'setup' ) );
+
 	}
 
 	/**
-	 * Setup action & filter hooks.
-	 */
-	public function __construct() {}
-
-	/**
-	 * Setup action & filters.
+	 * Register the action & filter hooks.
 	 */
 	public function setup() {
 
@@ -65,9 +42,7 @@ class Setup {
 		add_action( 'admin_notices', array( $this, 'migration_notice' ) );
 
 		// Ajax handlers.
-		new Ajax\Save_Settings();
-		new Ajax\Reset_Settings();
-		new Ajax\Load_Default_Settings();
+		new Ajax\Settings();
 		new Ajax\Migration();
 
 	}
@@ -110,7 +85,7 @@ class Setup {
 	}
 
 	/**
-	 * Better Admin Bar page output.
+	 * Settings page output.
 	 */
 	public function page_output() {
 
@@ -137,32 +112,16 @@ class Setup {
 			return;
 		}
 
-		if ( function_exists( 'wp_enqueue_media' ) ) {
-			wp_enqueue_media();
-		} else {
-			wp_enqueue_style( 'thickbox' );
-			wp_enqueue_script( 'media-upload' );
-			wp_enqueue_script( 'thickbox' );
-		}
+		wp_enqueue_media();
 
-		// CSS dependencies.
-
-		// WP Color picker dependency.
+		// Styles: WP color picker, heatbox & the settings page.
 		wp_enqueue_style( 'wp-color-picker' );
+		wp_enqueue_style( 'heatbox', CUSTOM_LOGIN_DASHBOARD_PLUGIN_URL . '/assets/css/heatbox.css', array( 'wp-color-picker' ), CUSTOM_LOGIN_DASHBOARD_PLUGIN_VERSION );
+		wp_enqueue_style( 'custom-login-dashboard', CUSTOM_LOGIN_DASHBOARD_PLUGIN_URL . '/assets/css/admin.css', array( 'heatbox' ), CUSTOM_LOGIN_DASHBOARD_PLUGIN_VERSION );
 
-		// Settings page styling.
-		wp_enqueue_style( 'heatbox', CUSTOM_LOGIN_DASHBOARD_PLUGIN_URL . '/assets/css/heatbox.css', array(), CUSTOM_LOGIN_DASHBOARD_PLUGIN_VERSION );
-
-		// Custom Login Dashboard admin styling.
-		wp_enqueue_style( 'custom-login-dashboard', CUSTOM_LOGIN_DASHBOARD_PLUGIN_URL . '/assets/css/admin.css', array(), CUSTOM_LOGIN_DASHBOARD_PLUGIN_VERSION );
-
-		// JS dependencies.
-
-		// Color picker alpha.
+		// Scripts: the color picker's alpha add-on & the settings page.
 		wp_enqueue_script( 'wp-color-picker-alpha', CUSTOM_LOGIN_DASHBOARD_PLUGIN_URL . '/assets/js/wp-color-picker-alpha.js', array( 'jquery', 'wp-color-picker', 'wp-i18n' ), '2.1.3', true );
-
-		// Settings page scripts.
-		wp_enqueue_script( 'custom-login-dashboard', CUSTOM_LOGIN_DASHBOARD_PLUGIN_URL . '/assets/js/settings-page.js', array( 'wp-color-picker' ), CUSTOM_LOGIN_DASHBOARD_PLUGIN_VERSION, true );
+		wp_enqueue_script( 'custom-login-dashboard', CUSTOM_LOGIN_DASHBOARD_PLUGIN_URL . '/assets/js/settings-page.js', array( 'jquery', 'wp-color-picker-alpha' ), CUSTOM_LOGIN_DASHBOARD_PLUGIN_VERSION, true );
 
 		wp_localize_script(
 			'custom-login-dashboard',
@@ -174,8 +133,9 @@ class Setup {
 					'loadDefaultSettings' => wp_create_nonce( 'cldashboard_nonce_load_default_settings' ),
 				),
 				'i18n'    => array(
-					'chooseImage' => __( 'Choose Image', 'erident-custom-login-and-dashboard' ),
-					'useImage'    => __( 'Use Image', 'erident-custom-login-and-dashboard' ),
+					'chooseImage'  => __( 'Choose Image', 'erident-custom-login-and-dashboard' ),
+					'useImage'     => __( 'Use Image', 'erident-custom-login-and-dashboard' ),
+					'genericError' => __( 'Something went wrong. Please reload the page and try again.', 'erident-custom-login-and-dashboard' ),
 				),
 				'dialogs' => array(
 					'resetSettingsConfirmation'       => __( 'Delete all settings? The login screen will look like the WordPress default again.', 'erident-custom-login-and-dashboard' ),
@@ -187,40 +147,26 @@ class Setup {
 	}
 
 	/**
-	 * Modify admin body class.
+	 * Add heatbox's body classes on the settings page.
 	 *
 	 * @param string $classes The class names.
+	 *
+	 * @return string
 	 */
 	public function admin_body_class( $classes ) {
 
-		$current_user = wp_get_current_user();
-		$classes     .= ' custom-login-dashboard-user-' . $current_user->user_nicename;
-
-		$roles = $current_user->roles;
-		$roles = $roles ? $roles : array();
-
-		foreach ( $roles as $role ) {
-			$classes .= ' custom-login-dashboard-role-' . $role;
-		}
-
-		$screens = array(
-			'settings_page_erident-custom-login-and-dashboard',
-		);
-
 		$screen = get_current_screen();
 
-		if ( ! in_array( $screen->id, $screens, true ) ) {
+		if ( ! $screen || 'settings_page_erident-custom-login-and-dashboard' !== $screen->id ) {
 			return $classes;
 		}
 
-		$classes .= ' heatbox-admin has-header';
-
-		return $classes;
+		return $classes . ' heatbox-admin has-header';
 
 	}
 
 	/**
-	 * Process widget export.
+	 * Process the settings export.
 	 */
 	public function process_export() {
 
@@ -243,7 +189,7 @@ class Setup {
 	}
 
 	/**
-	 * Process widget import.
+	 * Process the settings import.
 	 */
 	public function process_import() {
 
@@ -312,8 +258,6 @@ class Setup {
 
 		wp_enqueue_script( 'cldashboard-migration', CUSTOM_LOGIN_DASHBOARD_PLUGIN_URL . '/assets/js/migration.js', array( 'jquery', 'updates' ), CUSTOM_LOGIN_DASHBOARD_PLUGIN_VERSION, true );
 
-		$new_plugin_basename = 'ultimate-dashboard/ultimate-dashboard.php';
-
 		wp_localize_script(
 			'cldashboard-migration',
 			'CldashboardMigration',
@@ -324,8 +268,8 @@ class Setup {
 					'activationUrl' => add_query_arg(
 						array(
 							'action'   => 'activate',
-							'plugin'   => rawurlencode( $new_plugin_basename ),
-							'_wpnonce' => wp_create_nonce( 'activate-plugin_' . $new_plugin_basename ),
+							'plugin'   => rawurlencode( CUSTOM_LOGIN_DASHBOARD_UDB_BASENAME ),
+							'_wpnonce' => wp_create_nonce( 'activate-plugin_' . CUSTOM_LOGIN_DASHBOARD_UDB_BASENAME ),
 						),
 						admin_url( 'plugins.php' )
 					),

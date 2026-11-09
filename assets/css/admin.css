@@ -3,21 +3,6 @@
  * Builds on heatbox.css and uses its --heatbox-* tokens.
  */
 
-/* Tab panels: shown by settings-page.js */
-.cldashboard-settings-page .heatbox-admin-panel {
-	display: none;
-}
-
-/* Number fields with a unit */
-.cldashboard-settings-page .heatbox input.small-text {
-	width: 100px;
-}
-
-.cldashboard-unit {
-	margin-inline-start: 6px;
-	color: var(--heatbox-text-muted);
-}
-
 /* Image field: URL, choose & remove buttons */
 .cldashboard-image-field {
 	display: flex;
@@ -47,63 +32,6 @@
 	margin: 0;
 }
 
-/* Toggles: line up with the label */
-.cldashboard-settings-page .form-table td > .toggle-switch {
-	margin-top: 10px;
-}
-
-/* Form footer: save on the left, reset on the right */
-.cldashboard-form-footer {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-}
-
-.cldashboard-submit-area,
-.cldashboard-reset-area {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 12px;
-}
-
-.cldashboard-settings-page .button.is-hidden {
-	display: none;
-}
-
-.cldashboard-settings-page .button.cldashboard-reset-button {
-	color: #b32d2e;
-	border-color: #b32d2e;
-}
-
-.cldashboard-settings-page .button.cldashboard-reset-button:hover,
-.cldashboard-settings-page .button.cldashboard-reset-button:focus {
-	color: #fff;
-	background-color: #b32d2e;
-	border-color: #b32d2e;
-}
-
-/* Save & reset status */
-.cldashboard-notice {
-	font-weight: 500;
-	opacity: 0;
-	transition: opacity var(--heatbox-transition);
-}
-
-.cldashboard-notice.is-shown {
-	opacity: 1;
-}
-
-.cldashboard-notice.is-success {
-	color: #00a32a;
-}
-
-.cldashboard-notice.is-error {
-	color: #b32d2e;
-}
-
 /* Tools: export & import side by side */
 .cldashboard-tools-container {
 	display: grid;
@@ -119,69 +47,8 @@
 	margin: 0 0 16px;
 }
 
-/* Featured products */
-.featured-products.heatbox-container-wide {
-	max-width: 1200px;
-}
-
-.featured-products > h2 {
-	margin: 0 0 24px;
-	font-size: 20px;
-	font-weight: 600;
-	text-align: center;
-	color: var(--heatbox-text);
-}
-
-.featured-products .products {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: var(--heatbox-gap);
-	margin: 0;
-	padding: 0;
-	list-style: none;
-}
-
-.featured-products .products li {
-	display: flex;
-	flex-direction: column;
-	margin: 0;
-}
-
-.featured-products .products .heatbox-content {
-	display: flex;
-	flex-direction: column;
-	flex-grow: 1;
-}
-
-.featured-products .products .heatbox-content .button {
-	align-self: flex-start;
-	margin-top: auto;
-}
-
-.featured-products .products .subheadline {
-	margin: 0 0 8px;
-	font-weight: 500;
-	color: var(--heatbox-text);
-}
-
-.featured-products .products img {
-	max-width: 100%;
-}
-
-.featured-products .credit {
-	margin: 32px 0 20px;
-	text-align: center;
-	color: var(--heatbox-text-muted);
-}
-
 @media screen and (max-width: 782px) {
-	.cldashboard-tools-container,
-	.featured-products .products {
+	.cldashboard-tools-container {
 		grid-template-columns: 1fr;
-	}
-
-	.cldashboard-form-footer {
-		flex-direction: column;
-		align-items: stretch;
 	}
 }

@@ -10,8 +10,8 @@ defined( 'WP_UNINSTALL_PLUGIN' ) || die( "Can't access directly" );
 $cldashboard_settings = get_option( 'plugin_erident_settings', [] );
 $cldashboard_remove   = is_array( $cldashboard_settings ) && isset( $cldashboard_settings['dashboard_delete_db'] ) ? strtolower( (string) $cldashboard_settings['dashboard_delete_db'] ) : '';
 
-// Older versions saved "yes" / "no".
-if ( '' !== $cldashboard_remove && '0' !== $cldashboard_remove && 'no' !== $cldashboard_remove ) {
+// Older versions saved "yes" / "no". The plugin isn't loaded here, so no cldashboard_is_on().
+if ( ! in_array( $cldashboard_remove, [ '', '0', 'no', 'false' ], true ) ) {
 	delete_option( 'plugin_erident_settings' );
 }
 

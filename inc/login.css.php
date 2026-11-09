@@ -15,89 +15,59 @@ defined( 'ABSPATH' ) || die( "Can't access directly" );
 return function ( $settings ) {
 
 	// Sanitize on output too, the option may contain values from older versions.
+	// After this, toggles are 1 or missing & empty values are gone.
 	$settings = cldashboard_sanitize_settings( $settings );
 
-	$page_bg_color  = isset( $settings['top_bg_color'] ) && ! empty( $settings['top_bg_color'] ) ? $settings['top_bg_color'] : '';
-	$page_bg_image  = isset( $settings['top_bg_image'] ) && ! empty( $settings['top_bg_image'] ) ? $settings['top_bg_image'] : '';
-	$page_bg_repeat = isset( $settings['top_bg_repeat'] ) && ! empty( $settings['top_bg_repeat'] ) ? $settings['top_bg_repeat'] : '';
-	$page_bg_pos_x  = isset( $settings['top_bg_xpos'] ) && ! empty( $settings['top_bg_xpos'] ) ? $settings['top_bg_xpos'] : '';
-	$page_bg_pos_y  = isset( $settings['top_bg_ypos'] ) && ! empty( $settings['top_bg_ypos'] ) ? $settings['top_bg_ypos'] : '';
-	$page_bg_size   = isset( $settings['top_bg_size'] ) && ! empty( $settings['top_bg_size'] ) ? $settings['top_bg_size'] : '';
+	$get = function ( $key ) use ( $settings ) {
+		return empty( $settings[ $key ] ) ? '' : $settings[ $key ];
+	};
 
-	$logo_image  = isset( $settings['dashboard_image_logo'] ) && ! empty( $settings['dashboard_image_logo'] ) ? $settings['dashboard_image_logo'] : '';
-	$logo_width  = isset( $settings['dashboard_image_logo_width'] ) && ! empty( $settings['dashboard_image_logo_width'] ) ? $settings['dashboard_image_logo_width'] : '';
-	$logo_height = isset( $settings['dashboard_image_logo_height'] ) && ! empty( $settings['dashboard_image_logo_height'] ) ? $settings['dashboard_image_logo_height'] : '';
+	$page_bg_color  = $get( 'top_bg_color' );
+	$page_bg_image  = $get( 'top_bg_image' );
+	$page_bg_repeat = $get( 'top_bg_repeat' );
+	$page_bg_pos_x  = $get( 'top_bg_xpos' );
+	$page_bg_pos_y  = $get( 'top_bg_ypos' );
+	$page_bg_size   = $get( 'top_bg_size' );
 
-	$enable_form_box_shadow = isset( $settings['dashboard_check_form_shadow'] ) ? $settings['dashboard_check_form_shadow'] : 0;
-	$enable_form_box_shadow = 'yes' === strtolower( $enable_form_box_shadow ) ? 1 : $enable_form_box_shadow;
-	$enable_form_box_shadow = 'no' === strtolower( $enable_form_box_shadow ) ? 0 : $enable_form_box_shadow;
+	$logo_image  = $get( 'dashboard_image_logo' );
+	$logo_width  = $get( 'dashboard_image_logo_width' );
+	$logo_height = $get( 'dashboard_image_logo_height' );
 
-	$login_form_box_shadow = '';
+	$login_form_box_shadow = $get( 'dashboard_check_form_shadow' ) ? '0 4px 10px -1px ' . ( $get( 'dashboard_form_shadow' ) ? $get( 'dashboard_form_shadow' ) : '#CCCCCC' ) : '';
 
-	if ( $enable_form_box_shadow ) {
-		$login_form_box_shadow = '0 4px 10px -1px ' . ( empty( $settings['dashboard_form_shadow'] ) ? '#CCCCCC' : $settings['dashboard_form_shadow'] );
+	$remove_register_link     = $get( 'dashboard_check_lost_pass' );
+	$remove_back_to_blog_link = $get( 'dashboard_check_backtoblog' );
+
+	$btn_text_color     = $get( 'dashboard_button_text_color' );
+	$btn_bg_color       = $get( 'dashboard_button_color' );
+	$btn_bg_color_hover = $btn_bg_color ? cldashboard_color_with_alpha( $btn_bg_color, 0.9 ) : '';
+
+	$form_width         = $get( 'dashboard_login_width' );
+	$form_border_radius = $get( 'dashboard_login_radius' );
+	$form_border_width  = $get( 'dashboard_border_thick' );
+	$form_border_style  = $get( 'dashboard_login_border' );
+	$form_border_color  = $get( 'dashboard_border_color' );
+
+	// Older versions had a separate form background opacity.
+	$login_form_bg_color = $get( 'dashboard_login_bg' );
+
+	if ( $login_form_bg_color && isset( $settings['dashboard_login_bg_opacity'] ) && 1 > (float) $settings['dashboard_login_bg_opacity'] && false === stripos( $login_form_bg_color, 'rgba' ) ) {
+		$login_form_bg_color = cldashboard_color_with_alpha( $login_form_bg_color, $settings['dashboard_login_bg_opacity'] );
 	}
 
-	$remove_register_link = isset( $settings['dashboard_check_lost_pass'] ) ? $settings['dashboard_check_lost_pass'] : 0;
-	$remove_register_link = 'yes' === strtolower( $remove_register_link ) ? 1 : $remove_register_link;
-	$remove_register_link = 'no' === strtolower( $remove_register_link ) ? 0 : $remove_register_link;
+	$login_bg_image  = $get( 'login_bg_image' );
+	$login_bg_repeat = $get( 'login_bg_repeat' );
+	$login_bg_pos_x  = $get( 'login_bg_xpos' );
+	$login_bg_pos_y  = $get( 'login_bg_ypos' );
 
-	$remove_back_to_blog_link = isset( $settings['dashboard_check_backtoblog'] ) ? $settings['dashboard_check_backtoblog'] : 0;
-	$remove_back_to_blog_link = 'yes' === strtolower( $remove_back_to_blog_link ) ? 1 : $remove_back_to_blog_link;
-	$remove_back_to_blog_link = 'no' === strtolower( $remove_back_to_blog_link ) ? 0 : $remove_back_to_blog_link;
+	$label_font_color = $get( 'dashboard_text_color' );
+	$label_font_size  = $get( 'dashboard_label_text_size' );
 
-	$btn_text_color = isset( $settings['dashboard_button_text_color'] ) && ! empty( $settings['dashboard_button_text_color'] ) ? $settings['dashboard_button_text_color'] : '';
-	$btn_bg_color   = isset( $settings['dashboard_button_color'] ) && ! empty( $settings['dashboard_button_color'] ) ? $settings['dashboard_button_color'] : '';
+	$input_font_color = $get( 'dashboard_input_text_color' );
+	$input_font_size  = $get( 'dashboard_input_text_size' );
 
-	$btn_bg_color_hover = '';
-
-	if ( ! empty( $btn_bg_color ) ) {
-		$btn_bg_color_hover = cldashboard_color_with_alpha( $btn_bg_color, 0.9 );
-	}
-
-	$form_width         = isset( $settings['dashboard_login_width'] ) && ! empty( $settings['dashboard_login_width'] ) ? $settings['dashboard_login_width'] : '';
-	$form_border_radius = isset( $settings['dashboard_login_radius'] ) && ! empty( $settings['dashboard_login_radius'] ) ? $settings['dashboard_login_radius'] : '';
-	$form_border_width  = isset( $settings['dashboard_border_thick'] ) && ! empty( $settings['dashboard_border_thick'] ) ? $settings['dashboard_border_thick'] : '';
-	$form_border_style  = isset( $settings['dashboard_login_border'] ) && ! empty( $settings['dashboard_login_border'] ) ? $settings['dashboard_login_border'] : '';
-	$form_border_color  = isset( $settings['dashboard_border_color'] ) && ! empty( $settings['dashboard_border_color'] ) ? $settings['dashboard_border_color'] : '';
-
-	$login_form_bg_color = '';
-
-	if ( isset( $settings['dashboard_login_bg'] ) && ! empty( $settings['dashboard_login_bg'] ) ) {
-		$login_form_bg_color = $settings['dashboard_login_bg'];
-
-		if ( isset( $settings['dashboard_login_bg_opacity'] ) ) {
-			// This `dashboard_login_bg_opacity` won't be used anymore since we use colorpicker alpha now.
-			$login_form_bg_opacity = '' !== $settings['dashboard_login_bg_opacity'] ? $settings['dashboard_login_bg_opacity'] : 1; // 0 is allowed here.
-
-			if ( false === stripos( $login_form_bg_color, 'rgba' ) && 1 > $login_form_bg_opacity ) {
-				$login_form_bg_color = cldashboard_color_with_alpha( $login_form_bg_color, $login_form_bg_opacity );
-			}
-		}
-	}
-
-	$login_bg_image  = isset( $settings['login_bg_image'] ) && ! empty( $settings['login_bg_image'] ) ? $settings['login_bg_image'] : '';
-	$login_bg_repeat = isset( $settings['login_bg_repeat'] ) && ! empty( $settings['login_bg_repeat'] ) ? $settings['login_bg_repeat'] : '';
-	$login_bg_pos_x  = isset( $settings['login_bg_xpos'] ) && ! empty( $settings['login_bg_xpos'] ) ? $settings['login_bg_xpos'] : '';
-	$login_bg_pos_y  = isset( $settings['login_bg_ypos'] ) && ! empty( $settings['login_bg_ypos'] ) ? $settings['login_bg_ypos'] : '';
-
-	$label_font_color = isset( $settings['dashboard_text_color'] ) && ! empty( $settings['dashboard_text_color'] ) ? $settings['dashboard_text_color'] : '';
-	$label_font_size  = isset( $settings['dashboard_label_text_size'] ) && ! empty( $settings['dashboard_label_text_size'] ) ? $settings['dashboard_label_text_size'] : '';
-
-	$input_font_color = isset( $settings['dashboard_input_text_color'] ) && ! empty( $settings['dashboard_input_text_color'] ) ? $settings['dashboard_input_text_color'] : '';
-	$input_font_size  = isset( $settings['dashboard_input_text_size'] ) && ! empty( $settings['dashboard_input_text_size'] ) ? $settings['dashboard_input_text_size'] : '';
-
-	$link_color = isset( $settings['dashboard_link_color'] ) && ! empty( $settings['dashboard_link_color'] ) ? $settings['dashboard_link_color'] : '';
-
-	$enable_link_text_shadow = isset( $settings['dashboard_check_shadow'] ) ? $settings['dashboard_check_shadow'] : 0;
-	$enable_link_text_shadow = 'yes' === strtolower( $enable_link_text_shadow ) ? 1 : $enable_link_text_shadow;
-	$enable_link_text_shadow = 'no' === strtolower( $enable_link_text_shadow ) ? 0 : $enable_link_text_shadow;
-
-	$login_link_text_shadow = '';
-
-	if ( $enable_link_text_shadow ) {
-		$login_link_text_shadow = ( empty( $settings['dashboard_link_shadow'] ) ? '#ffffff' : $settings['dashboard_link_shadow'] ) . ' 0 1px 0';
-	}
+	$link_color             = $get( 'dashboard_link_color' );
+	$login_link_text_shadow = $get( 'dashboard_check_shadow' ) ? ( $get( 'dashboard_link_shadow' ) ? $get( 'dashboard_link_shadow' ) : '#ffffff' ) . ' 0 1px 0' : '';
 	?>
 
 	html {
@@ -192,9 +162,7 @@ return function ( $settings ) {
 		<?php endif; ?>
 
 		<?php if ( ! empty( $login_form_box_shadow ) ) : ?>
-			-moz-box-shadow:    <?php echo esc_html( $login_form_box_shadow ); ?> !important;
-			-webkit-box-shadow: <?php echo esc_html( $login_form_box_shadow ); ?> !important;
-			box-shadow:         <?php echo esc_html( $login_form_box_shadow ); ?> !important;
+			box-shadow: <?php echo esc_html( $login_form_box_shadow ); ?> !important;
 		<?php endif; ?>
 	}
 

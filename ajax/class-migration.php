@@ -7,17 +7,12 @@
 
 namespace CustomLoginDashboard\Ajax;
 
+defined( 'ABSPATH' ) || die( "Can't access directly" );
+
 /**
- * Class to manage ajax request of migration to UDB.
+ * The one-click migration to Ultimate Dashboard & its notice.
  */
 class Migration {
-
-	/**
-	 * The old plugin slug.
-	 *
-	 * @var string
-	 */
-	private $old_plugin_basename = '';
 
 	/**
 	 * The option that makes sure only one migration runs at a time.
@@ -69,9 +64,6 @@ class Migration {
 		if ( ! cldashboard_can_migrate() ) {
 			wp_send_json_error( __( 'You are not allowed to do this', 'erident-custom-login-and-dashboard' ), 403 );
 		}
-
-		// Never take this from the request: it's the plugin that gets deleted.
-		$this->old_plugin_basename = CUSTOM_LOGIN_DASHBOARD_PLUGIN_BASENAME;
 
 		$step = isset( $_POST['step'] ) ? sanitize_key( wp_unslash( $_POST['step'] ) ) : '';
 
@@ -162,9 +154,12 @@ class Migration {
 
 		update_option( 'udb_migration_from_erident', 1 );
 
-		deactivate_plugins( $this->old_plugin_basename );
+		// The plugin that gets deleted: never take this from the request.
+		$plugin = CUSTOM_LOGIN_DASHBOARD_PLUGIN_BASENAME;
 
-		$deletion = file_exists( WP_PLUGIN_DIR . '/' . $this->old_plugin_basename ) ? delete_plugins( [ $this->old_plugin_basename ] ) : true;
+		deactivate_plugins( $plugin );
+
+		$deletion = file_exists( WP_PLUGIN_DIR . '/' . $plugin ) ? delete_plugins( [ $plugin ] ) : true;
 
 		delete_option( self::LOCK );
 
@@ -190,323 +185,189 @@ class Migration {
 	}
 
 	/**
-	 * Migrate Erident Custom Login & Dashboard settings to Ultimate Dashboard settings.
+	 * Copy the Erident settings to Ultimate Dashboard's settings.
 	 */
 	private function migrate_settings() {
 
-		$this->migrate_general_settings();
-		$this->migrate_login_settings();
+		$settings = $this->get_erident_settings();
+
+		$this->migrate_general_settings( $settings );
+		$this->migrate_login_settings( $settings );
 
 	}
 
 	/**
-	 * Migrate general settings.
-	 */
-	private function migrate_general_settings() {
-
-		$udb_general_options  = get_option( 'udb_settings', [] );
-		$udb_branding_options = get_option( 'udb_branding', [] );
-		$erident_options      = $this->get_erident_settings();
-
-		if ( empty( $erident_options ) ) {
-			return;
-		}
-
-		$is_general_changed  = false;
-		$is_branding_changed = false;
-
-		$clean_deactivation = isset( $erident_options['dashboard_delete_db'] ) ? $erident_options['dashboard_delete_db'] : 0;
-		$clean_deactivation = 'yes' === strtolower( $clean_deactivation ) ? 1 : $clean_deactivation;
-		$clean_deactivation = 'no' === strtolower( $clean_deactivation ) ? 0 : $clean_deactivation;
-
-		if ( $clean_deactivation ) {
-			$udb_general_options['remove-on-uninstall'] = 1;
-
-			$is_general_changed = true;
-		}
-
-		$footer_text = isset( $erident_options['dashboard_data_left'] ) ? stripslashes( $erident_options['dashboard_data_left'] ) : '';
-
-		if ( $footer_text ) {
-			$udb_branding_options['footer_text'] = $footer_text;
-
-			$is_branding_changed = true;
-		}
-
-		$version_text = isset( $erident_options['dashboard_data_right'] ) ? stripslashes( $erident_options['dashboard_data_right'] ) : '';
-
-		if ( $version_text ) {
-			$udb_branding_options['version_text'] = $version_text;
-
-			$is_branding_changed = true;
-		}
-
-		if ( $is_general_changed ) {
-			update_option( 'udb_settings', $udb_general_options );
-		}
-
-		if ( $is_branding_changed ) {
-			update_option( 'udb_branding', $udb_branding_options );
-		}
-
-	}
-
-	/**
-	 * Migrate login customization settings.
+	 * Copy "remove data on uninstall" & the admin footer texts.
 	 *
-	 * We don't need to use "is_changed" flag here because
-	 * almost all Erident settings are about login customization.
+	 * @param array $settings The Erident settings (sanitized).
 	 */
-	private function migrate_login_settings() {
+	private function migrate_general_settings( $settings ) {
 
-		$udb_login_options = get_option( 'udb_login', [] );
-		$erident_options   = $this->get_erident_settings();
-
-		$udb_login_options['logo_url'] = get_bloginfo( 'url' );
-
-		if ( empty( $erident_options ) ) {
-			update_option( 'udb_login', $udb_login_options );
+		if ( empty( $settings ) ) {
 			return;
 		}
 
-		$logo_image_url = isset( $erident_options['dashboard_image_logo'] ) && ! empty( $erident_options['dashboard_image_logo'] ) ? $erident_options['dashboard_image_logo'] : '';
-		$logo_image_url = $this->keep_image( $logo_image_url );
+		if ( ! empty( $settings['dashboard_delete_db'] ) ) {
+			$udb_settings = get_option( 'udb_settings', [] );
 
-		if ( $logo_image_url ) {
-			$udb_login_options['logo_image'] = $logo_image_url;
+			$udb_settings['remove-on-uninstall'] = 1;
+
+			update_option( 'udb_settings', $udb_settings );
 		}
 
-		$logo_width = isset( $erident_options['dashboard_image_logo_width'] ) && ! empty( $erident_options['dashboard_image_logo_width'] ) ? $erident_options['dashboard_image_logo_width'] : '';
+		$udb_branding = get_option( 'udb_branding', [] );
+		$changed      = false;
 
-		if ( $logo_width ) {
-			$logo_width = trim( $logo_width ) . 'px';
+		foreach ( [
+			'dashboard_data_left'  => 'footer_text',
+			'dashboard_data_right' => 'version_text',
+		] as $key => $udb_key ) {
+			$text = empty( $settings[ $key ] ) ? '' : stripslashes( $settings[ $key ] );
 
-			// Logo width doesn't exist in UDB login customizer, but let's keep this.
-			$udb_login_options['logo_width'] = $logo_width;
-		}
-
-		$logo_height = isset( $erident_options['dashboard_image_logo_height'] ) && ! empty( $erident_options['dashboard_image_logo_height'] ) ? $erident_options['dashboard_image_logo_height'] : '';
-
-		if ( $logo_height ) {
-			$logo_height = trim( $logo_height ) . 'px';
-
-			$udb_login_options['logo_height'] = $logo_height;
-		}
-
-		$logo_text = isset( $erident_options['dashboard_power_text'] ) && ! empty( $erident_options['dashboard_power_text'] ) ? $erident_options['dashboard_power_text'] : '';
-
-		if ( $logo_text ) {
-			$udb_login_options['logo_title'] = $logo_text;
-		}
-
-		$bg_color = isset( $erident_options['top_bg_color'] ) && ! empty( $erident_options['top_bg_color'] ) ? $erident_options['top_bg_color'] : '';
-
-		if ( $bg_color ) {
-			$udb_login_options['bg_color'] = $bg_color;
-		}
-
-		$bg_image_url = isset( $erident_options['top_bg_image'] ) && ! empty( $erident_options['top_bg_image'] ) ? $erident_options['top_bg_image'] : '';
-		$bg_image_url = $this->keep_image( $bg_image_url );
-
-		if ( $bg_image_url ) {
-			$udb_login_options['bg_image'] = $bg_image_url;
-		}
-
-		$bg_repeat = isset( $erident_options['top_bg_repeat'] ) && ! empty( $erident_options['top_bg_repeat'] ) ? $erident_options['top_bg_repeat'] : '';
-
-		if ( $bg_repeat ) {
-			$udb_login_options['bg_repeat'] = $bg_repeat;
-		}
-
-		$bg_position = $this->get_bg_position( $erident_options, 'top_bg_xpos', 'top_bg_ypos' );
-
-		if ( $bg_position ) {
-			$udb_login_options = array_merge( $udb_login_options, $this->prefix_keys( $bg_position, 'bg_' ) );
-		}
-
-		$bg_size = isset( $erident_options['top_bg_size'] ) ? trim( $erident_options['top_bg_size'] ) : '';
-
-		if ( in_array( $bg_size, [ 'auto', 'cover', 'contain' ], true ) ) {
-			$udb_login_options['bg_size'] = $bg_size;
-		} elseif ( '' !== $bg_size ) {
-			$udb_login_options['bg_size']        = 'custom';
-			$udb_login_options['bg_custom_size'] = $bg_size;
-		}
-
-		$form_width = isset( $erident_options['dashboard_login_width'] ) && ! empty( $erident_options['dashboard_login_width'] ) ? $erident_options['dashboard_login_width'] : '';
-
-		if ( $form_width ) {
-			$form_width = trim( $form_width ) . 'px';
-
-			$udb_login_options['form_width'] = $form_width;
-		}
-
-		$form_border_radius = isset( $erident_options['dashboard_login_radius'] ) && ! empty( $erident_options['dashboard_login_radius'] ) ? $erident_options['dashboard_login_radius'] : '';
-
-		if ( $form_border_radius ) {
-			$form_border_radius = trim( $form_border_radius ) . 'px';
-
-			$udb_login_options['form_border_radius'] = $form_border_radius;
-		}
-
-		$form_border_width = isset( $erident_options['dashboard_border_thick'] ) && ! empty( $erident_options['dashboard_border_thick'] ) ? $erident_options['dashboard_border_thick'] : '';
-
-		if ( $form_border_width ) {
-			$form_border_width = trim( $form_border_width ) . 'px';
-
-			$udb_login_options['form_border_width'] = $form_border_width;
-		}
-
-		$form_border_style = isset( $erident_options['dashboard_login_border'] ) && ! empty( $erident_options['dashboard_login_border'] ) ? $erident_options['dashboard_login_border'] : '';
-
-		if ( $form_border_style ) {
-			$udb_login_options['form_border_style'] = $form_border_style;
-		}
-
-		$form_border_color = isset( $erident_options['dashboard_border_color'] ) && ! empty( $erident_options['dashboard_border_color'] ) ? $erident_options['dashboard_border_color'] : '';
-
-		if ( $form_border_color ) {
-			$udb_login_options['form_border_color'] = $form_border_color;
-		}
-
-		$enable_form_shadow = isset( $erident_options['dashboard_check_form_shadow'] ) ? $erident_options['dashboard_check_form_shadow'] : 0;
-		$enable_form_shadow = 'yes' === strtolower( $enable_form_shadow ) ? 1 : $enable_form_shadow;
-		$enable_form_shadow = 'no' === strtolower( $enable_form_shadow ) ? 0 : $enable_form_shadow;
-		$enable_form_shadow = absint( $enable_form_shadow );
-
-		if ( $enable_form_shadow ) {
-			$udb_login_options['enable_form_shadow'] = 1;
-		}
-
-		$form_shadow_color = isset( $erident_options['dashboard_form_shadow'] ) && ! empty( $erident_options['dashboard_form_shadow'] ) ? $erident_options['dashboard_form_shadow'] : '';
-
-		if ( $form_shadow_color ) {
-			$udb_login_options['form_shadow_color'] = $form_shadow_color;
-		}
-
-		$form_bg_color = isset( $erident_options['dashboard_login_bg'] ) && ! empty( $erident_options['dashboard_login_bg'] ) ? $erident_options['dashboard_login_bg'] : '';
-
-		if ( isset( $erident_options['dashboard_login_bg_opacity'] ) ) {
-			// This `dashboard_login_bg_opacity` won't be used anymore since we use colorpicker alpha now.
-			$form_bg_opacity = '' !== $erident_options['dashboard_login_bg_opacity'] ? $erident_options['dashboard_login_bg_opacity'] : 1; // 0 is allowed here.
-
-			if ( false === stripos( $form_bg_color, 'rgba' ) && 1 > $form_bg_opacity ) {
-				$form_bg_color = cldashboard_color_with_alpha( $form_bg_color, $form_bg_opacity );
+			if ( $text ) {
+				$udb_branding[ $udb_key ] = $text;
+				$changed                  = true;
 			}
 		}
 
+		if ( $changed ) {
+			update_option( 'udb_branding', $udb_branding );
+		}
+
+	}
+
+	/**
+	 * Copy the login screen settings.
+	 *
+	 * @param array $settings The Erident settings (sanitized).
+	 */
+	private function migrate_login_settings( $settings ) {
+
+		$udb_login = get_option( 'udb_login', [] );
+
+		// Erident links the logo to the site.
+		$udb_login['logo_url'] = home_url();
+
+		if ( empty( $settings ) ) {
+			update_option( 'udb_login', $udb_login );
+			return;
+		}
+
+		$get = function ( $key ) use ( $settings ) {
+			return empty( $settings[ $key ] ) ? '' : $settings[ $key ];
+		};
+
+		// Same value.
+		$copy = [
+			'dashboard_power_text'        => [ 'logo_title' ],
+			'top_bg_color'                => [ 'bg_color' ],
+			'top_bg_repeat'               => [ 'bg_repeat' ],
+			'dashboard_login_border'      => [ 'form_border_style' ],
+			'dashboard_border_color'      => [ 'form_border_color' ],
+			'dashboard_form_shadow'       => [ 'form_shadow_color' ],
+			'login_bg_repeat'             => [ 'form_bg_repeat' ],
+			'dashboard_text_color'        => [ 'labels_color' ],
+			// Erident has no separate focus & hover colors.
+			'dashboard_input_text_color'  => [ 'fields_text_color', 'fields_text_color_focus' ],
+			'dashboard_button_text_color' => [ 'button_text_color', 'button_text_color_hover' ],
+			'dashboard_link_color'        => [ 'footer_link_color', 'footer_link_color_hover' ],
+			// Not in Ultimate Dashboard's login customizer, but kept.
+			'dashboard_link_shadow'       => [ 'link_shadow_color' ],
+		];
+
+		foreach ( $copy as $key => $udb_keys ) {
+			if ( $get( $key ) ) {
+				foreach ( $udb_keys as $udb_key ) {
+					$udb_login[ $udb_key ] = $get( $key );
+				}
+			}
+		}
+
+		// Numbers in pixels.
+		$pixels = [
+			'dashboard_image_logo_width'  => 'logo_width', // Not in Ultimate Dashboard's login customizer, but kept.
+			'dashboard_image_logo_height' => 'logo_height',
+			'dashboard_login_width'       => 'form_width',
+			'dashboard_login_radius'      => 'form_border_radius',
+			'dashboard_border_thick'      => 'form_border_width',
+			'dashboard_label_text_size'   => 'labels_font_size',
+			'dashboard_input_text_size'   => 'fields_font_size',
+		];
+
+		foreach ( $pixels as $key => $udb_key ) {
+			if ( $get( $key ) ) {
+				$udb_login[ $udb_key ] = trim( $get( $key ) ) . 'px';
+			}
+		}
+
+		// Toggles.
+		$toggles = [
+			'dashboard_check_form_shadow' => 'enable_form_shadow',
+			'dashboard_check_shadow'      => 'enable_link_shadow', // Not in Ultimate Dashboard's login customizer, but kept.
+			'dashboard_check_lost_pass'   => 'remove_register_lost_pw_link',
+			'dashboard_check_backtoblog'  => 'remove_back_to_site_link',
+		];
+
+		foreach ( $toggles as $key => $udb_key ) {
+			if ( $get( $key ) ) {
+				$udb_login[ $udb_key ] = 1;
+			}
+		}
+
+		// Images: the ones inside this plugin's folder are copied first, the folder gets deleted.
+		$images = [
+			'dashboard_image_logo' => 'logo_image',
+			'top_bg_image'         => 'bg_image',
+			'login_bg_image'       => 'form_bg_image',
+		];
+
+		foreach ( $images as $key => $udb_key ) {
+			$url = $this->keep_image( $get( $key ) );
+
+			if ( $url ) {
+				$udb_login[ $udb_key ] = $url;
+			}
+		}
+
+		// Background positions & size.
+		foreach ( [
+			'bg_'      => [ 'top_bg_xpos', 'top_bg_ypos' ],
+			'form_bg_' => [ 'login_bg_xpos', 'login_bg_ypos' ],
+		] as $prefix => $keys ) {
+			$position = $this->get_bg_position( $settings, $keys[0], $keys[1] );
+
+			if ( $position ) {
+				$udb_login = array_merge( $udb_login, $this->prefix_keys( $position, $prefix ) );
+			}
+		}
+
+		$bg_size = trim( $get( 'top_bg_size' ) );
+
+		if ( in_array( $bg_size, [ 'auto', 'cover', 'contain' ], true ) ) {
+			$udb_login['bg_size'] = $bg_size;
+		} elseif ( '' !== $bg_size ) {
+			$udb_login['bg_size']        = 'custom';
+			$udb_login['bg_custom_size'] = $bg_size;
+		}
+
+		// Form background: older versions had a separate opacity.
+		$form_bg_color = $get( 'dashboard_login_bg' );
+
+		if ( isset( $settings['dashboard_login_bg_opacity'] ) && 1 > (float) $settings['dashboard_login_bg_opacity'] && false === stripos( $form_bg_color, 'rgba' ) ) {
+			$form_bg_color = cldashboard_color_with_alpha( $form_bg_color, $settings['dashboard_login_bg_opacity'] );
+		}
+
 		if ( $form_bg_color ) {
-			$udb_login_options['form_bg_color'] = $form_bg_color;
+			$udb_login['form_bg_color'] = $form_bg_color;
 		}
 
-		$form_bg_image_url = isset( $erident_options['login_bg_image'] ) && ! empty( $erident_options['login_bg_image'] ) ? $erident_options['login_bg_image'] : '';
-		$form_bg_image_url = $this->keep_image( $form_bg_image_url );
-
-		if ( $form_bg_image_url ) {
-			$udb_login_options['form_bg_image'] = $form_bg_image_url;
+		// Button: Erident darkens it a little on hover.
+		if ( $get( 'dashboard_button_color' ) ) {
+			$udb_login['button_bg_color']       = $get( 'dashboard_button_color' );
+			$udb_login['button_bg_color_hover'] = cldashboard_color_with_alpha( $get( 'dashboard_button_color' ), 0.9 );
 		}
 
-		$form_bg_repeat = isset( $erident_options['login_bg_repeat'] ) && ! empty( $erident_options['login_bg_repeat'] ) ? $erident_options['login_bg_repeat'] : '';
-
-		if ( $form_bg_repeat ) {
-			$udb_login_options['form_bg_repeat'] = $form_bg_repeat;
-		}
-
-		$form_bg_position = $this->get_bg_position( $erident_options, 'login_bg_xpos', 'login_bg_ypos' );
-
-		if ( $form_bg_position ) {
-			$udb_login_options = array_merge( $udb_login_options, $this->prefix_keys( $form_bg_position, 'form_bg_' ) );
-		}
-
-		$labels_color = isset( $erident_options['dashboard_text_color'] ) && ! empty( $erident_options['dashboard_text_color'] ) ? $erident_options['dashboard_text_color'] : '';
-
-		if ( $labels_color ) {
-			$udb_login_options['labels_color'] = $labels_color;
-		}
-
-		$labels_font_size = isset( $erident_options['dashboard_label_text_size'] ) && ! empty( $erident_options['dashboard_label_text_size'] ) ? $erident_options['dashboard_label_text_size'] : '';
-
-		if ( $labels_font_size ) {
-			$labels_font_size = trim( $labels_font_size ) . 'px';
-
-			$udb_login_options['labels_font_size'] = $labels_font_size;
-		}
-
-		$fields_text_color = isset( $erident_options['dashboard_input_text_color'] ) && ! empty( $erident_options['dashboard_input_text_color'] ) ? $erident_options['dashboard_input_text_color'] : '';
-
-		if ( $fields_text_color ) {
-			$udb_login_options['fields_text_color']       = $fields_text_color;
-			$udb_login_options['fields_text_color_focus'] = $fields_text_color;
-		}
-
-		$fields_font_size = isset( $erident_options['dashboard_input_text_size'] ) && ! empty( $erident_options['dashboard_input_text_size'] ) ? $erident_options['dashboard_input_text_size'] : '';
-
-		if ( $fields_font_size ) {
-			$fields_font_size = trim( $fields_font_size ) . 'px';
-
-			$udb_login_options['fields_font_size'] = $fields_font_size;
-		}
-
-		$button_bg_color       = isset( $erident_options['dashboard_button_color'] ) && ! empty( $erident_options['dashboard_button_color'] ) ? $erident_options['dashboard_button_color'] : '';
-		$button_bg_color_hover = '';
-
-		if ( $button_bg_color ) {
-			$button_bg_color_hover = cldashboard_color_with_alpha( $button_bg_color, 0.9 );
-
-			$udb_login_options['button_bg_color']       = $button_bg_color;
-			$udb_login_options['button_bg_color_hover'] = $button_bg_color_hover;
-		}
-
-		$button_text_color = isset( $erident_options['dashboard_button_text_color'] ) && ! empty( $erident_options['dashboard_button_text_color'] ) ? $erident_options['dashboard_button_text_color'] : '';
-
-		if ( $button_text_color ) {
-			$udb_login_options['button_text_color']       = $button_text_color;
-			$udb_login_options['button_text_color_hover'] = $button_text_color;
-		}
-
-		$footer_link_color = isset( $erident_options['dashboard_link_color'] ) && ! empty( $erident_options['dashboard_link_color'] ) ? $erident_options['dashboard_link_color'] : '';
-
-		if ( $footer_link_color ) {
-			$udb_login_options['footer_link_color']       = $footer_link_color;
-			$udb_login_options['footer_link_color_hover'] = $footer_link_color;
-		}
-
-		$enable_link_shadow = isset( $erident_options['dashboard_check_shadow'] ) ? $erident_options['dashboard_check_shadow'] : 0;
-		$enable_link_shadow = 'yes' === strtolower( $enable_link_shadow ) ? 1 : $enable_link_shadow;
-		$enable_link_shadow = 'no' === strtolower( $enable_link_shadow ) ? 0 : $enable_link_shadow;
-		$enable_link_shadow = absint( $enable_link_shadow );
-
-		if ( $enable_link_shadow ) {
-			// Enable link shadow doesn't exist in UDB login customizer, but let's keep this.
-			$udb_login_options['enable_link_shadow'] = 1;
-		}
-
-		$link_shadow_color = isset( $erident_options['dashboard_link_shadow'] ) && ! empty( $erident_options['dashboard_link_shadow'] ) ? $erident_options['dashboard_link_shadow'] : '';
-
-		if ( $link_shadow_color ) {
-			// Link shadow color doesn't exist in UDB login customizer, but let's keep this.
-			$udb_login_options['link_shadow_color'] = $link_shadow_color;
-		}
-
-		$remove_register_link = isset( $erident_options['dashboard_check_lost_pass'] ) ? $erident_options['dashboard_check_lost_pass'] : 0;
-		$remove_register_link = 'yes' === strtolower( $remove_register_link ) ? 1 : $remove_register_link;
-		$remove_register_link = 'no' === strtolower( $remove_register_link ) ? 0 : $remove_register_link;
-		$remove_register_link = absint( $remove_register_link );
-
-		if ( $remove_register_link ) {
-			$udb_login_options['remove_register_lost_pw_link'] = 1;
-		}
-
-		$remove_back_to_blog_link = isset( $erident_options['dashboard_check_backtoblog'] ) ? $erident_options['dashboard_check_backtoblog'] : 0;
-		$remove_back_to_blog_link = 'yes' === strtolower( $remove_back_to_blog_link ) ? 1 : $remove_back_to_blog_link;
-		$remove_back_to_blog_link = 'no' === strtolower( $remove_back_to_blog_link ) ? 0 : $remove_back_to_blog_link;
-		$remove_back_to_blog_link = absint( $remove_back_to_blog_link );
-
-		if ( $remove_back_to_blog_link ) {
-			$udb_login_options['remove_back_to_site_link'] = 1;
-		}
-
-		update_option( 'udb_login', $udb_login_options );
+		update_option( 'udb_login', $udb_login );
 
 	}
 

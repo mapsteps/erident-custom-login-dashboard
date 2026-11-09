@@ -1,5 +1,6 @@
 <?php
-/** Custom Login Dashboard's helper functions.
+/**
+ * Helper functions.
  *
  * @package Custom_Login_Dashboard
  */
@@ -89,7 +90,7 @@ function cldashboard_sanitize_settings( $raw_settings ) {
 				break;
 
 			case 'bool':
-				$value = in_array( strtolower( $value ), [ '', '0', 'no', 'false' ], true ) ? '' : 1;
+				$value = cldashboard_is_on( $value ) ? 1 : '';
 				break;
 
 			case 'html':
@@ -120,6 +121,19 @@ function cldashboard_sanitize_settings( $raw_settings ) {
 	}
 
 	return $settings;
+
+}
+
+/**
+ * Check if a toggle setting is on. Older versions saved "yes" / "no".
+ *
+ * @param mixed $value The setting value.
+ *
+ * @return bool
+ */
+function cldashboard_is_on( $value ) {
+
+	return ! in_array( strtolower( trim( (string) $value ) ), [ '', '0', 'no', 'false' ], true );
 
 }
 
@@ -209,7 +223,7 @@ function cldashboard_color_with_alpha( $color, $alpha ) {
  */
 function cldashboard_is_udb_installed() {
 
-	$installed = defined( 'ULTIMATE_DASHBOARD_PLUGIN_VERSION' ) || file_exists( WP_PLUGIN_DIR . '/ultimate-dashboard/ultimate-dashboard.php' );
+	$installed = defined( 'ULTIMATE_DASHBOARD_PLUGIN_VERSION' ) || file_exists( WP_PLUGIN_DIR . '/' . CUSTOM_LOGIN_DASHBOARD_UDB_BASENAME );
 
 	/**
 	 * Filters whether Ultimate Dashboard counts as installed (e.g. to preview the migration prompts).
@@ -267,7 +281,6 @@ function cldashboard_get_field_default_values() {
 		'dashboard_border_thick'      => 2,
 		'dashboard_border_color'      => '#dddddd',
 		'dashboard_login_bg'          => '#ffffff',
-		'dashboard_login_bg_opacity'  => 1, // Deprecated.
 		'dashboard_text_color'        => '#3c434a',
 		'dashboard_input_text_color'  => '#2c3338',
 		'dashboard_label_text_size'   => 14,

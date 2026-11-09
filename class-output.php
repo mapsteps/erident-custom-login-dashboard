@@ -1,53 +1,30 @@
 <?php
 /**
- * Setup Custom Login Dashboard output.
+ * Login screen & admin footer output.
  *
  * @package Custom_Login_Dashboard
  */
 
 namespace CustomLoginDashboard;
 
+defined( 'ABSPATH' ) || die( "Can't access directly" );
+
 /**
- * Setup Better Admin Bar output.
+ * Login screen & admin footer output.
  */
 class Output {
 
 	/**
-	 * The class instance.
-	 *
-	 * @var object
-	 */
-	public static $instance;
-
-	/**
-	 * Get instance of the class.
-	 */
-	public static function get_instance() {
-
-		if ( null === self::$instance ) {
-			self::$instance = new self();
-		}
-
-		return self::$instance;
-
-	}
-
-	/**
-	 * Init the class setup.
+	 * Hook in once all plugins are loaded.
 	 */
 	public static function init() {
-		self::$instance = new self();
 
-		add_action( 'plugins_loaded', array( self::$instance, 'setup' ) );
+		add_action( 'plugins_loaded', [ new self(), 'setup' ] );
+
 	}
 
 	/**
-	 * Setup action & filter hooks.
-	 */
-	public function __construct() {}
-
-	/**
-	 * Setup action & filters.
+	 * Register the action & filter hooks.
 	 */
 	public function setup() {
 
@@ -112,11 +89,13 @@ class Output {
 	}
 
 	/**
-	 * Change login logo URL.
+	 * Link the login logo to the site instead of wordpress.org.
+	 *
+	 * @return string
 	 */
 	public function login_logo_url() {
 
-		return get_bloginfo( 'url' );
+		return home_url();
 
 	}
 

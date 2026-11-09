@@ -34,13 +34,13 @@ defined( 'ABSPATH' ) || die( "Can't access directly" );
 
 			<nav aria-label="<?php esc_attr_e( 'Settings sections', 'erident-custom-login-and-dashboard' ); ?>">
 				<ul class="heatbox-tab-nav">
-					<li class="heatbox-tab-nav-item cldashboard-login-screen-panel">
+					<li class="heatbox-tab-nav-item" data-panel="login-screen">
 						<a href="#login-screen"><?php esc_html_e( 'Login Screen', 'erident-custom-login-and-dashboard' ); ?></a>
 					</li>
-					<li class="heatbox-tab-nav-item cldashboard-dashboard-settings-panel">
+					<li class="heatbox-tab-nav-item" data-panel="dashboard-settings">
 						<a href="#dashboard-settings"><?php esc_html_e( 'Dashboard', 'erident-custom-login-and-dashboard' ); ?></a>
 					</li>
-					<li class="heatbox-tab-nav-item cldashboard-tools-panel">
+					<li class="heatbox-tab-nav-item" data-panel="tools">
 						<a href="#tools"><?php esc_html_e( 'Tools', 'erident-custom-login-and-dashboard' ); ?></a>
 					</li>
 				</ul>
@@ -50,7 +50,7 @@ defined( 'ABSPATH' ) || die( "Can't access directly" );
 
 	</div>
 
-	<div class="heatbox-container heatbox-container-center heatbox-column-container heatbox-form-container">
+	<div class="heatbox-container heatbox-container-center heatbox-column-container">
 
 		<div class="heatbox-main">
 
@@ -65,9 +65,9 @@ defined( 'ABSPATH' ) || die( "Can't access directly" );
 			}
 			?>
 
-			<form method="post" action="options.php" class="cldashboard-settings-form">
+			<form method="post" class="cldashboard-settings-form">
 
-				<div class="heatbox-admin-panel cldashboard-login-screen-panel">
+				<div class="heatbox-admin-panel" data-panel="login-screen">
 					<?php
 					require __DIR__ . '/setting-boxes/login-logo-settings.php';
 					require __DIR__ . '/setting-boxes/login-bg-settings.php';
@@ -76,26 +76,26 @@ defined( 'ABSPATH' ) || die( "Can't access directly" );
 					?>
 				</div>
 
-				<div class="heatbox-admin-panel cldashboard-dashboard-settings-panel">
+				<div class="heatbox-admin-panel" data-panel="dashboard-settings">
 					<?php
 					require __DIR__ . '/setting-boxes/dashboard-settings.php';
 					require __DIR__ . '/setting-boxes/misc-settings.php';
 					?>
 				</div>
 
-				<div class="cldashboard-form-footer">
-					<div class="cldashboard-submit-area">
+				<div class="heatbox-form-footer cldashboard-form-footer">
+					<div>
 						<button type="submit" class="button button-primary button-larger cldashboard-submit-button">
 							<?php esc_html_e( 'Save Changes', 'erident-custom-login-and-dashboard' ); ?>
 						</button>
-						<span class="cldashboard-notice cldashboard-submit-notice" role="status"></span>
+						<span class="heatbox-notice cldashboard-submit-notice" role="status"></span>
 					</div>
-					<div class="cldashboard-reset-area">
-						<span class="cldashboard-notice cldashboard-reset-notice" role="status"></span>
+					<div>
+						<span class="heatbox-notice cldashboard-reset-notice" role="status"></span>
 						<button type="button" class="button button-larger cldashboard-load-defaults-button">
 							<?php esc_html_e( 'Load Default Settings', 'erident-custom-login-and-dashboard' ); ?>
 						</button>
-						<button type="button" class="button button-larger cldashboard-reset-button">
+						<button type="button" class="button button-larger is-destructive cldashboard-reset-button">
 							<?php esc_html_e( 'Reset Settings', 'erident-custom-login-and-dashboard' ); ?>
 						</button>
 					</div>
@@ -103,7 +103,7 @@ defined( 'ABSPATH' ) || die( "Can't access directly" );
 
 			</form>
 
-			<div class="heatbox-admin-panel cldashboard-tools-panel">
+			<div class="heatbox-admin-panel" data-panel="tools">
 				<div class="cldashboard-tools-container">
 					<?php
 					require __DIR__ . '/setting-boxes/export-settings.php';
@@ -124,7 +124,7 @@ defined( 'ABSPATH' ) || die( "Can't access directly" );
 
 	</div>
 
-	<div class="heatbox-container heatbox-container-wide heatbox-container-center featured-products">
+	<div class="heatbox-container heatbox-container-wide heatbox-container-center heatbox-products">
 
 		<h2><?php esc_html_e( 'Check out our other free WordPress products!', 'erident-custom-login-and-dashboard' ); ?></h2>
 
