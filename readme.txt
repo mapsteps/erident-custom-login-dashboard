@@ -4,7 +4,7 @@ Tags: login, custom login, login page, login customizer, admin footer
 Requires at least: 5.3
 Tested up to: 7.1
 Requires PHP: 5.6
-Stable tag: 4.3
+Stable tag: 5.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 

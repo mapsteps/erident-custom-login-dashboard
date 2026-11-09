@@ -3,7 +3,7 @@
  * Plugin Name: Erident Custom Login and Dashboard
  * Plugin URI: https://mapsteps.com
  * Description: Fully customize the WordPress Login Screen.
- * Version: 4.3
+ * Version: 5.0
  * Requires at least: 5.3
  * Requires PHP: 5.6
  * Author: David Vongries
@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || die( "Can't access directly" );
 define( 'CUSTOM_LOGIN_DASHBOARD_PLUGIN_DIR', rtrim( plugin_dir_path( __FILE__ ), '/' ) );
 define( 'CUSTOM_LOGIN_DASHBOARD_PLUGIN_URL', rtrim( plugin_dir_url( __FILE__ ), '/' ) );
 define( 'CUSTOM_LOGIN_DASHBOARD_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
-define( 'CUSTOM_LOGIN_DASHBOARD_PLUGIN_VERSION', '4.3' );
+define( 'CUSTOM_LOGIN_DASHBOARD_PLUGIN_VERSION', '5.0' );
 
 // Helper classes.
 require __DIR__ . '/helpers/helpers.php';
