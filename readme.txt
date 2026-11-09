@@ -47,7 +47,7 @@ Move your settings to another site with a .json file.
 
 [Ultimate Dashboard](https://ultimatedashboard.io/?utm_source=erident&utm_medium=repository&utm_campaign=udb) lets you customize the login screen **live in the WordPress Customizer**, with more options, plus tools to customize the whole WordPress admin.
 
-The one-click migration on the Erident settings page installs Ultimate Dashboard, moves your Erident settings over and removes Erident. Your login screen stays the same.
+The one-click migration on the Erident settings page installs Ultimate Dashboard, moves your Erident settings over and removes Erident. Your login screen looks almost the same, and you can keep customizing it live.
 
 ---------
 
@@ -82,7 +82,7 @@ Go to *Settings → Custom Login & Dashboard*, choose an image under *Logo* and 
 Yes, with security & compatibility updates. New features go into [Ultimate Dashboard](https://ultimatedashboard.io/?utm_source=erident&utm_medium=repository&utm_campaign=udb), which also has a live login customizer.
 
 = What happens when I migrate to Ultimate Dashboard? =
-Ultimate Dashboard is installed and activated, your Erident settings are moved over and Erident is removed. Your login screen stays the same, and you can keep customizing it live in the WordPress Customizer.
+Ultimate Dashboard is installed and activated, your Erident settings are moved over and Erident is removed. Your login screen looks almost the same, and you can keep customizing it live in the WordPress Customizer.
 
 = I already have Ultimate Dashboard installed. Can I still migrate? =
 The migration only runs if Ultimate Dashboard isn't installed yet, so your existing Ultimate Dashboard settings are never overwritten.

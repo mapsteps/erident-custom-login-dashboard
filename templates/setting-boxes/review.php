@@ -16,6 +16,7 @@ defined( 'ABSPATH' ) || die( "Can't access directly" );
 		</p>
 		<a href="https://wordpress.org/support/plugin/erident-custom-login-and-dashboard/reviews/#new-post" target="_blank" class="button">
 			<?php esc_html_e( 'Sure, you deserve it!', 'erident-custom-login-and-dashboard' ); ?>
+			<span class="screen-reader-text"> <?php esc_html_e( '(opens in a new tab)', 'erident-custom-login-and-dashboard' ); ?></span>
 		</a>
 	</div>
 </div>

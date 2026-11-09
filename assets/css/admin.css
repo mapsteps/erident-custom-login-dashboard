@@ -68,6 +68,13 @@
 	border-radius: 0 calc(var(--heatbox-radius-control) - 1px) calc(var(--heatbox-radius-control) - 1px) 0;
 }
 
+/* The color swatch (from the alpha script) fills the whole swatch area */
+.cldashboard-settings-page .wp-color-result .color-alpha {
+	width: 40px !important;
+	height: 100% !important;
+	border-radius: calc(var(--heatbox-radius-control) - 1px) 0 0 calc(var(--heatbox-radius-control) - 1px);
+}
+
 .cldashboard-settings-page .wp-picker-input-wrap .button {
 	min-height: var(--heatbox-control-height);
 }

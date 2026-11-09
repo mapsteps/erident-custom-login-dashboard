@@ -24,6 +24,37 @@ function cldashboard_field_value( $settings, $name ) {
 }
 
 /**
+ * Get a number setting as a whole number (older versions allowed e.g. "274px").
+ *
+ * @param array  $settings The plugin settings.
+ * @param string $name     The field name.
+ *
+ * @return string The number or an empty string.
+ */
+function cldashboard_number_value( $settings, $name ) {
+
+	$value = cldashboard_field_value( $settings, $name );
+
+	return '' === trim( $value ) ? '' : (string) absint( $value );
+
+}
+
+/**
+ * Get the plugin's default value of a setting.
+ *
+ * @param string $name The field name.
+ *
+ * @return string The default value or an empty string.
+ */
+function cldashboard_default_value( $name ) {
+
+	$defaults = cldashboard_get_field_default_values();
+
+	return isset( $defaults[ $name ] ) ? (string) $defaults[ $name ] : '';
+
+}
+
+/**
  * Print the opening of a field row.
  *
  * @param string $name  The field name.
@@ -50,7 +81,7 @@ function cldashboard_field_row_start( $name, $label, $args = [] ) {
 
 	<tr<?php echo $row_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above. ?>>
 		<th scope="row">
-			<label for="<?php echo esc_attr( $name ); ?>"><?php echo esc_html( $label ); ?></label>
+			<label for="<?php echo esc_attr( $name ); ?>" id="<?php echo esc_attr( $name ); ?>-label"><?php echo esc_html( $label ); ?></label>
 			<?php if ( ! empty( $args['description'] ) ) : ?>
 				<p class="description" id="<?php echo esc_attr( $name ); ?>-description"><?php echo wp_kses( $args['description'], [ 'code' => [] ] ); ?></p>
 			<?php endif; ?>
@@ -122,7 +153,7 @@ function cldashboard_number_field( $settings, $name, $label, $args = [] ) {
 	cldashboard_field_row_start( $name, $label, $args );
 	?>
 
-	<input type="number" min="0" step="1" name="<?php echo esc_attr( $name ); ?>" id="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( cldashboard_field_value( $settings, $name ) ); ?>" class="small-text general-setting-field"<?php echo cldashboard_field_describedby( $name, $args ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in the function. ?>>
+	<input type="number" min="0" step="1" name="<?php echo esc_attr( $name ); ?>" id="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( cldashboard_number_value( $settings, $name ) ); ?>" class="small-text general-setting-field"<?php echo cldashboard_field_describedby( $name, $args ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in the function. ?>>
 	<span class="cldashboard-unit">px</span>
 
 	<?php
@@ -145,7 +176,7 @@ function cldashboard_color_field( $settings, $name, $label, $args = [] ) {
 	cldashboard_field_row_start( $name, $label, $args );
 	?>
 
-	<input type="text" name="<?php echo esc_attr( $name ); ?>" id="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" class="color-picker-field general-setting-field" data-alpha="true" data-default-color="<?php echo esc_attr( $value ); ?>">
+	<input type="text" name="<?php echo esc_attr( $name ); ?>" id="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" class="color-picker-field general-setting-field" data-alpha="true" data-default-color="<?php echo esc_attr( cldashboard_default_value( $name ) ); ?>">
 
 	<?php
 	cldashboard_field_row_end();
@@ -167,8 +198,8 @@ function cldashboard_image_field( $settings, $name, $label, $args = [] ) {
 
 	<div class="cldashboard-image-field">
 		<input type="url" name="<?php echo esc_attr( $name ); ?>" id="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_url( cldashboard_field_value( $settings, $name ) ); ?>" class="regular-text general-setting-field cldashboard-media-field">
-		<button type="button" class="button cldashboard-upload-button"><?php esc_html_e( 'Choose Image', 'erident-custom-login-and-dashboard' ); ?></button>
-		<button type="button" class="button cldashboard-clear-button" aria-label="<?php esc_attr_e( 'Remove image', 'erident-custom-login-and-dashboard' ); ?>">
+		<button type="button" class="button cldashboard-upload-button" aria-describedby="<?php echo esc_attr( $name ); ?>-label"><?php esc_html_e( 'Choose Image', 'erident-custom-login-and-dashboard' ); ?></button>
+		<button type="button" class="button cldashboard-clear-button" aria-label="<?php esc_attr_e( 'Remove image', 'erident-custom-login-and-dashboard' ); ?>" aria-describedby="<?php echo esc_attr( $name ); ?>-label">
 			<span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
 		</button>
 	</div>

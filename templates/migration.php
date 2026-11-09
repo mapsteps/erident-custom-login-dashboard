@@ -35,7 +35,7 @@ $cldashboard_learn_more_url = 'https://ultimatedashboard.io/blog/erident-custom-
 
 			<p class="cldashboard-migration-actions">
 				<button type="button" class="button button-primary<?php echo $cldashboard_is_notice ? '' : ' button-larger'; ?> cldashboard-migration-button"><?php esc_html_e( 'Migrate to Ultimate Dashboard', 'erident-custom-login-and-dashboard' ); ?></button>
-				<a href="<?php echo esc_url( $cldashboard_learn_more_url ); ?>" target="_blank"><?php esc_html_e( 'Learn more', 'erident-custom-login-and-dashboard' ); ?></a>
+				<a href="<?php echo esc_url( $cldashboard_learn_more_url ); ?>" target="_blank"><?php esc_html_e( 'Learn more', 'erident-custom-login-and-dashboard' ); ?><span class="screen-reader-text"> <?php esc_html_e( '(opens in a new tab)', 'erident-custom-login-and-dashboard' ); ?></span></a>
 			</p>
 
 			<ul class="cldashboard-migration-statuses" aria-live="polite">

@@ -130,36 +130,36 @@ defined( 'ABSPATH' ) || die( "Can't access directly" );
 
 		<ul class="products">
 			<li class="heatbox">
-				<a href="https://wordpress.org/plugins/ultimate-dashboard/" target="_blank">
+				<a href="https://wordpress.org/plugins/ultimate-dashboard/" target="_blank" aria-hidden="true" tabindex="-1">
 					<img src="<?php echo esc_url( CUSTOM_LOGIN_DASHBOARD_PLUGIN_URL ); ?>/assets/images/ultimate-dashboard.jpg" alt="">
 				</a>
 				<div class="heatbox-content">
 					<h3><?php esc_html_e( 'Ultimate Dashboard', 'erident-custom-login-and-dashboard' ); ?></h3>
 					<p class="subheadline"><?php esc_html_e( 'Fully customize your WordPress dashboard.', 'erident-custom-login-and-dashboard' ); ?></p>
 					<p><?php esc_html_e( 'Ultimate Dashboard is the #1 plugin to create a custom WordPress dashboard for you and your clients. It also comes with multisite support which makes it the perfect plugin for your WaaS network.', 'erident-custom-login-and-dashboard' ); ?></p>
-					<a href="https://wordpress.org/plugins/ultimate-dashboard/" target="_blank" class="button"><?php esc_html_e( 'Learn more', 'erident-custom-login-and-dashboard' ); ?></a>
+					<a href="https://wordpress.org/plugins/ultimate-dashboard/" target="_blank" class="button"><?php esc_html_e( 'Learn more', 'erident-custom-login-and-dashboard' ); ?><span class="screen-reader-text"> <?php esc_html_e( '(opens in a new tab)', 'erident-custom-login-and-dashboard' ); ?></span></a>
 				</div>
 			</li>
 			<li class="heatbox">
-				<a href="https://wordpress.org/themes/page-builder-framework/" target="_blank">
+				<a href="https://wordpress.org/themes/page-builder-framework/" target="_blank" aria-hidden="true" tabindex="-1">
 					<img src="<?php echo esc_url( CUSTOM_LOGIN_DASHBOARD_PLUGIN_URL ); ?>/assets/images/page-builder-framework.jpg" alt="">
 				</a>
 				<div class="heatbox-content">
 					<h3><?php esc_html_e( 'Page Builder Framework', 'erident-custom-login-and-dashboard' ); ?></h3>
 					<p class="subheadline"><?php esc_html_e( 'The only theme you\'ll ever need.', 'erident-custom-login-and-dashboard' ); ?></p>
 					<p class="description"><?php esc_html_e( 'With its minimalistic design the Page Builder Framework theme is the perfect foundation for your next project. Build blazing fast websites with a theme that is easy to use, lightweight & highly customizable.', 'erident-custom-login-and-dashboard' ); ?></p>
-					<a href="https://wordpress.org/themes/page-builder-framework/" target="_blank" class="button"><?php esc_html_e( 'Learn more', 'erident-custom-login-and-dashboard' ); ?></a>
+					<a href="https://wordpress.org/themes/page-builder-framework/" target="_blank" class="button"><?php esc_html_e( 'Learn more', 'erident-custom-login-and-dashboard' ); ?><span class="screen-reader-text"> <?php esc_html_e( '(opens in a new tab)', 'erident-custom-login-and-dashboard' ); ?></span></a>
 				</div>
 			</li>
 			<li class="heatbox">
-				<a href="https://wordpress.org/plugins/better-admin-bar/" target="_blank">
+				<a href="https://wordpress.org/plugins/better-admin-bar/" target="_blank" aria-hidden="true" tabindex="-1">
 					<img src="<?php echo esc_url( CUSTOM_LOGIN_DASHBOARD_PLUGIN_URL ); ?>/assets/images/better-admin-bar.jpg" alt="">
 				</a>
 				<div class="heatbox-content">
 					<h3><?php esc_html_e( 'Better Admin Bar', 'erident-custom-login-and-dashboard' ); ?></h3>
 					<p class="subheadline"><?php esc_html_e( 'Replace the boring WordPress admin bar!', 'erident-custom-login-and-dashboard' ); ?></p>
 					<p><?php esc_html_e( 'Better Admin Bar is the plugin that make your clients love WordPress. It drastically improves the user experience when working with WordPress and allows you to replace the boring WordPress admin bar with your own navigation panel.', 'erident-custom-login-and-dashboard' ); ?></p>
-					<a href="https://wordpress.org/plugins/better-admin-bar/" target="_blank" class="button"><?php esc_html_e( 'Learn more', 'erident-custom-login-and-dashboard' ); ?></a>
+					<a href="https://wordpress.org/plugins/better-admin-bar/" target="_blank" class="button"><?php esc_html_e( 'Learn more', 'erident-custom-login-and-dashboard' ); ?><span class="screen-reader-text"> <?php esc_html_e( '(opens in a new tab)', 'erident-custom-login-and-dashboard' ); ?></span></a>
 				</div>
 			</li>
 		</ul>
