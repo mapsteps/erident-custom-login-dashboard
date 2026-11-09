@@ -35,7 +35,7 @@ return function ( $settings ) {
 	$login_form_box_shadow = '';
 
 	if ( $enable_form_box_shadow ) {
-		$login_form_box_shadow = '0 4px 10px -1px ' . $settings['dashboard_form_shadow'];
+		$login_form_box_shadow = '0 4px 10px -1px ' . ( empty( $settings['dashboard_form_shadow'] ) ? '#CCCCCC' : $settings['dashboard_form_shadow'] );
 	}
 
 	$remove_register_link = isset( $settings['dashboard_check_lost_pass'] ) ? $settings['dashboard_check_lost_pass'] : 0;
@@ -96,7 +96,7 @@ return function ( $settings ) {
 	$login_link_text_shadow = '';
 
 	if ( $enable_link_text_shadow ) {
-		$login_link_text_shadow = $settings['dashboard_link_shadow'] . ' 0 1px 0';
+		$login_link_text_shadow = ( empty( $settings['dashboard_link_shadow'] ) ? '#ffffff' : $settings['dashboard_link_shadow'] ) . ' 0 1px 0';
 	}
 	?>
 

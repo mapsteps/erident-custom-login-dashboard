@@ -17,3 +17,6 @@ if ( '' !== $cldashboard_remove && '0' !== $cldashboard_remove && 'no' !== $clda
 
 // When the migration notice was dismissed. Not a setting, so always removed.
 delete_metadata( 'user', 0, 'cldashboard_migration_notice_dismissed', '', true );
+
+// Left over if a migration broke off.
+delete_option( 'cldashboard_migration_lock' );

@@ -1,5 +1,10 @@
 /**
  * Migrate from Erident Custom Login & Dashboard to Ultimate Dashboard.
+ *
+ * Nothing is removed before Ultimate Dashboard is installed:
+ * 1. Check & install Ultimate Dashboard.
+ * 2. Move the settings over & remove Erident (server).
+ * 3. Activate Ultimate Dashboard.
  */
 (function ($) {
 	var data = window.CldashboardMigration;
@@ -28,8 +33,8 @@
 	function getElements(wrapper) {
 		elms.failed = wrapper.querySelector(".migration-failed");
 		elms.errorMessage = elms.failed.querySelector(".error-message");
-		elms.uninstall = wrapper.querySelector(".cldashboard-uninstalled");
 		elms.install = wrapper.querySelector(".ultimate-dashboard-installed");
+		elms.migrate = wrapper.querySelector(".cldashboard-uninstalled");
 		elms.activate = wrapper.querySelector(".ultimate-dashboard-activated");
 	}
 
@@ -41,6 +46,7 @@
 	 */
 	function stepWaiting(step, message) {
 		step.querySelector(".process-message").textContent = message;
+		step.classList.remove("is-done");
 		step.classList.add("is-waiting");
 	}
 
@@ -61,13 +67,14 @@
 	 *
 	 * @param {HTMLElement} step The status element that failed.
 	 * @param {string} message The error message.
+	 * @param {boolean} canRetry Whether the button can be used again (nothing was removed yet).
 	 */
-	function fail(step, message) {
+	function fail(step, message, canRetry) {
 		elms.errorMessage.textContent = message || i18n.genericError;
 		step.classList.remove("is-waiting");
 		elms.failed.classList.add("is-done");
 		button.classList.remove("is-loading");
-		button.disabled = false;
+		button.disabled = !canRetry;
 		isRequesting = false;
 	}
 
@@ -81,6 +88,10 @@
 			return String(response.responseJSON.data);
 		}
 
+		if (response && response.data && typeof response.data === "string") {
+			return response.data;
+		}
+
 		if (response && response.errorMessage) {
 			return String(response.errorMessage);
 		}
@@ -89,7 +100,25 @@
 	}
 
 	/**
-	 * Step 1: migrate the settings & remove Erident.
+	 * Send a migration step to the server.
+	 *
+	 * @param {string} step The step: start, finish or abort.
+	 */
+	function request(step) {
+		return $.ajax({
+			url: window.ajaxurl,
+			type: "post",
+			dataType: "json",
+			data: {
+				action: "cldashboard_migration",
+				nonce: data.nonces.migration,
+				step: step,
+			},
+		});
+	}
+
+	/**
+	 * Step 1: check if the migration can run, then install Ultimate Dashboard.
 	 *
 	 * @param {Event} e The click event.
 	 */
@@ -103,35 +132,26 @@
 		button.classList.add("is-loading");
 		button.disabled = true;
 
-		getElements(button.closest(".cldashboard-migration"));
+		getElements($(button).closest(".cldashboard-migration")[0]);
 		elms.failed.classList.remove("is-done");
-		stepWaiting(elms.uninstall, i18n.uninstalling);
+		stepWaiting(elms.install, i18n.checking);
 
-		$.ajax({
-			url: window.ajaxurl,
-			type: "post",
-			dataType: "json",
-			data: {
-				action: "cldashboard_migration",
-				nonce: data.nonces.migration,
-			},
-		})
+		request("start")
 			.done(function (r) {
 				if (!r.success) {
-					fail(elms.uninstall, r.data);
+					fail(elms.install, getErrorMessage(r), true);
 					return;
 				}
 
-				stepDone(elms.uninstall, i18n.uninstalled);
 				installUltimateDashboard();
 			})
 			.fail(function (jqXHR) {
-				fail(elms.uninstall, getErrorMessage(jqXHR));
+				fail(elms.install, getErrorMessage(jqXHR), true);
 			});
 	}
 
 	/**
-	 * Step 2: install Ultimate Dashboard.
+	 * Install Ultimate Dashboard. If that fails, nothing has been removed.
 	 */
 	function installUltimateDashboard() {
 		stepWaiting(elms.install, i18n.installing);
@@ -140,12 +160,35 @@
 			slug: data.newPlugin.slug,
 			success: function () {
 				stepDone(elms.install, i18n.installed);
-				activateUltimateDashboard();
+				finishMigration();
 			},
 			error: function (response) {
-				fail(elms.install, getErrorMessage(response));
+				// Release the lock, so the migration can be started again.
+				request("abort");
+				fail(elms.install, getErrorMessage(response), true);
 			},
 		});
+	}
+
+	/**
+	 * Step 2: move the settings to Ultimate Dashboard & remove Erident.
+	 */
+	function finishMigration() {
+		stepWaiting(elms.migrate, i18n.uninstalling);
+
+		request("finish")
+			.done(function (r) {
+				if (!r.success) {
+					fail(elms.migrate, getErrorMessage(r), false);
+					return;
+				}
+
+				stepDone(elms.migrate, r.data.message);
+				activateUltimateDashboard();
+			})
+			.fail(function (jqXHR) {
+				fail(elms.migrate, getErrorMessage(jqXHR), false);
+			});
 	}
 
 	/**
@@ -162,8 +205,8 @@
 				stepDone(elms.activate, i18n.activated);
 				window.location.replace(data.redirectUrl);
 			})
-			.fail(function (jqXHR) {
-				fail(elms.activate, getErrorMessage(jqXHR));
+			.fail(function () {
+				fail(elms.activate, i18n.activateFailed, false);
 			});
 	}
 

@@ -101,7 +101,7 @@ No. Settings are only deleted when you delete the plugin and *Remove Data on Uni
 * New: Redesigned, accessible settings page
 * New: The login form settings are combined in one box
 * Tweak: The migration to Ultimate Dashboard is offered in a box on the settings page and a dismissible notice on the Dashboard & Plugins screens, instead of on every admin page
-* Tweak: The migration checks that Ultimate Dashboard can be installed before anything is removed
+* Tweak: The migration installs Ultimate Dashboard before Erident is removed, and only one migration can run at a time
 * Tweak: "Remove Data on Uninstall" deletes the settings when the plugin is deleted, no longer on deactivation
 * Tweak: Translations are loaded from translate.wordpress.org
 * Tweak: Requires WordPress 5.3

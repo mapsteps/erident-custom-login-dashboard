@@ -91,7 +91,7 @@ class Setup {
 
 			array_unshift( $actions, $settings_link );
 
-			if ( cldashboard_can_migrate() ) {
+			if ( cldashboard_offer_migration() ) {
 				$actions['cldashboard_migrate'] = '<a href="' . esc_url( admin_url( 'options-general.php?page=erident-custom-login-and-dashboard' ) ) . '" style="font-weight: 600;">' . esc_html__( 'Migrate to Ultimate Dashboard', 'erident-custom-login-and-dashboard' ) . '</a>';
 			}
 		}
@@ -116,6 +116,11 @@ class Setup {
 
 		$settings = get_option( 'plugin_erident_settings', [] );
 		$settings = is_array( $settings ) ? $settings : [];
+
+		// Older versions had a separate form background opacity. Show it in the color picker, so saving keeps it.
+		if ( isset( $settings['dashboard_login_bg_opacity'], $settings['dashboard_login_bg'] ) && '' !== $settings['dashboard_login_bg_opacity'] && (float) $settings['dashboard_login_bg_opacity'] < 1 && false === stripos( $settings['dashboard_login_bg'], 'rgba' ) ) {
+			$settings['dashboard_login_bg'] = cldashboard_color_with_alpha( $settings['dashboard_login_bg'], $settings['dashboard_login_bg_opacity'] );
+		}
 
 		require __DIR__ . '/templates/settings-template.php';
 
@@ -275,7 +280,7 @@ class Setup {
 			return false;
 		}
 
-		if ( ! cldashboard_can_migrate() || cldashboard_is_udb_installed() ) {
+		if ( ! cldashboard_offer_migration() ) {
 			return false;
 		}
 
@@ -299,7 +304,7 @@ class Setup {
 
 		$is_settings_page = $screen && 'settings_page_erident-custom-login-and-dashboard' === $screen->id;
 
-		if ( ! $this->show_migration_notice() && ! ( $is_settings_page && cldashboard_can_migrate() ) ) {
+		if ( ! $this->show_migration_notice() && ! ( $is_settings_page && cldashboard_offer_migration() ) ) {
 			return;
 		}
 
@@ -330,14 +335,15 @@ class Setup {
 					'dismiss'   => wp_create_nonce( 'cldashboard_nonce_dismiss_migration_notice' ),
 				),
 				'i18n'        => array(
-					'confirm'      => __( 'Migrate to Ultimate Dashboard now? Please stay on this page until the migration is complete.', 'erident-custom-login-and-dashboard' ),
-					'uninstalling' => __( 'Moving your settings & removing Erident Custom Login & Dashboard...', 'erident-custom-login-and-dashboard' ),
-					'uninstalled'  => __( 'Settings moved & Erident Custom Login & Dashboard removed.', 'erident-custom-login-and-dashboard' ),
-					'installing'   => __( 'Installing Ultimate Dashboard...', 'erident-custom-login-and-dashboard' ),
-					'installed'    => __( 'Ultimate Dashboard installed.', 'erident-custom-login-and-dashboard' ),
-					'activating'   => __( 'Activating Ultimate Dashboard...', 'erident-custom-login-and-dashboard' ),
-					'activated'    => __( 'Ultimate Dashboard activated. Redirecting...', 'erident-custom-login-and-dashboard' ),
-					'genericError' => __( 'Something went wrong. Please reload the page and try again.', 'erident-custom-login-and-dashboard' ),
+					'confirm'        => __( 'Migrate to Ultimate Dashboard now? Please stay on this page until the migration is complete.', 'erident-custom-login-and-dashboard' ),
+					'uninstalling'   => __( 'Moving your settings & removing Erident Custom Login & Dashboard...', 'erident-custom-login-and-dashboard' ),
+					'checking'       => __( 'Checking if Ultimate Dashboard can be installed...', 'erident-custom-login-and-dashboard' ),
+					'installing'     => __( 'Installing Ultimate Dashboard...', 'erident-custom-login-and-dashboard' ),
+					'installed'      => __( 'Ultimate Dashboard installed.', 'erident-custom-login-and-dashboard' ),
+					'activating'     => __( 'Activating Ultimate Dashboard...', 'erident-custom-login-and-dashboard' ),
+					'activated'      => __( 'Ultimate Dashboard activated. Redirecting...', 'erident-custom-login-and-dashboard' ),
+					'genericError'   => __( 'Something went wrong. Please reload the page and try again.', 'erident-custom-login-and-dashboard' ),
+					'activateFailed' => __( 'Your settings are in Ultimate Dashboard. Please activate it on the Plugins screen.', 'erident-custom-login-and-dashboard' ),
 				),
 			)
 		);

@@ -39,16 +39,12 @@ $cldashboard_learn_more_url = 'https://ultimatedashboard.io/blog/erident-custom-
 			</p>
 
 			<ul class="cldashboard-migration-statuses" aria-live="polite">
-				<li class="cldashboard-migration-status migration-failed">
-					<span class="dashicons dashicons-no" aria-hidden="true"></span>
-					<span><?php esc_html_e( 'Migration failed:', 'erident-custom-login-and-dashboard' ); ?> <span class="error-message"></span></span>
-				</li>
-				<li class="cldashboard-migration-status cldashboard-uninstalled">
+				<li class="cldashboard-migration-status ultimate-dashboard-installed">
 					<span class="loader" aria-hidden="true"></span>
 					<span class="dashicons dashicons-yes" aria-hidden="true"></span>
 					<span class="process-message"></span>
 				</li>
-				<li class="cldashboard-migration-status ultimate-dashboard-installed">
+				<li class="cldashboard-migration-status cldashboard-uninstalled">
 					<span class="loader" aria-hidden="true"></span>
 					<span class="dashicons dashicons-yes" aria-hidden="true"></span>
 					<span class="process-message"></span>
@@ -57,6 +53,10 @@ $cldashboard_learn_more_url = 'https://ultimatedashboard.io/blog/erident-custom-
 					<span class="loader" aria-hidden="true"></span>
 					<span class="dashicons dashicons-yes" aria-hidden="true"></span>
 					<span class="process-message"></span>
+				</li>
+				<li class="cldashboard-migration-status migration-failed">
+					<span class="dashicons dashicons-no" aria-hidden="true"></span>
+					<span><?php esc_html_e( 'Migration failed:', 'erident-custom-login-and-dashboard' ); ?> <span class="error-message"></span></span>
 				</li>
 			</ul>
 		</div>

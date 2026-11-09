@@ -124,7 +124,7 @@ function cldashboard_sanitize_settings( $raw_settings ) {
 }
 
 /**
- * Sanitize a color: hex, rgb() or rgba().
+ * Sanitize a color: hex, rgb(a), hsl(a) or a color keyword like "white" or "transparent".
  *
  * @param string $color The color.
  *
@@ -133,12 +133,22 @@ function cldashboard_sanitize_settings( $raw_settings ) {
 function cldashboard_sanitize_color( $color ) {
 
 	$color = trim( (string) $color );
+	$alpha = '(\s*,\s*\d*\.?\d+%?\s*)?';
 
-	if ( preg_match( '/^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i', $color ) ) {
+	if ( preg_match( '/^#([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i', $color ) ) {
 		return $color;
 	}
 
-	if ( preg_match( '/^rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*(0|1|0?\.\d+)\s*)?\)$/i', $color ) ) {
+	if ( preg_match( '/^rgba?\(\s*\d{1,3}%?\s*,\s*\d{1,3}%?\s*,\s*\d{1,3}%?' . $alpha . '\)$/i', $color ) ) {
+		return $color;
+	}
+
+	if ( preg_match( '/^hsla?\(\s*\d*\.?\d+(deg)?\s*,\s*\d*\.?\d+%\s*,\s*\d*\.?\d+%' . $alpha . '\)$/i', $color ) ) {
+		return $color;
+	}
+
+	// Keywords (older versions accepted any text).
+	if ( preg_match( '/^[a-z]{3,20}$/i', $color ) ) {
 		return $color;
 	}
 
@@ -206,13 +216,29 @@ function cldashboard_is_udb_installed() {
 /**
  * Check if the current user can run the migration to Ultimate Dashboard.
  *
- * The migration installs, activates & deletes plugins.
+ * The migration installs, activates & deletes plugins. Not on multisite: deleting the plugin
+ * would remove it from every site, but only this site's settings would be migrated.
  *
  * @return bool
  */
 function cldashboard_can_migrate() {
 
+	if ( is_multisite() ) {
+		return false;
+	}
+
 	return current_user_can( 'manage_options' ) && current_user_can( 'install_plugins' ) && current_user_can( 'activate_plugins' ) && current_user_can( 'delete_plugins' );
+
+}
+
+/**
+ * Check if the migration should be offered: the user can run it & Ultimate Dashboard isn't installed yet.
+ *
+ * @return bool
+ */
+function cldashboard_offer_migration() {
+
+	return cldashboard_can_migrate() && ! cldashboard_is_udb_installed();
 
 }
 

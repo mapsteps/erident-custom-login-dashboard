@@ -58,7 +58,7 @@ defined( 'ABSPATH' ) || die( "Can't access directly" );
 			<hr class="wp-header-end">
 
 			<?php
-			if ( cldashboard_can_migrate() ) {
+			if ( cldashboard_offer_migration() ) {
 				$cldashboard_is_notice = false;
 
 				require __DIR__ . '/migration.php';

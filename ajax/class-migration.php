@@ -20,6 +20,13 @@ class Migration {
 	private $old_plugin_basename = '';
 
 	/**
+	 * The option that makes sure only one migration runs at a time.
+	 *
+	 * @var string
+	 */
+	const LOCK = 'cldashboard_migration_lock';
+
+	/**
 	 * Class constructor.
 	 */
 	public function __construct() {
@@ -47,18 +54,13 @@ class Migration {
 
 	/**
 	 * The request handler.
+	 *
+	 * The migration runs in steps, so nothing is removed before Ultimate Dashboard is installed:
+	 * 1. "start": checks & takes a lock, then the browser installs Ultimate Dashboard.
+	 * 2. "finish": copies the settings to Ultimate Dashboard & removes this plugin, then the browser activates Ultimate Dashboard.
+	 * "abort" releases the lock if installing Ultimate Dashboard failed.
 	 */
 	public function handler() {
-
-		$this->validate();
-		$this->migrate();
-
-	}
-
-	/**
-	 * Validate the request & check if the migration can run.
-	 */
-	private function validate() {
 
 		if ( ! check_ajax_referer( 'cldashboard_nonce_migration', 'nonce', false ) ) {
 			wp_send_json_error( __( 'Invalid token', 'erident-custom-login-and-dashboard' ), 401 );
@@ -68,11 +70,31 @@ class Migration {
 			wp_send_json_error( __( 'You are not allowed to do this', 'erident-custom-login-and-dashboard' ), 403 );
 		}
 
+		// Never take this from the request: it's the plugin that gets deleted.
+		$this->old_plugin_basename = CUSTOM_LOGIN_DASHBOARD_PLUGIN_BASENAME;
+
+		$step = isset( $_POST['step'] ) ? sanitize_key( wp_unslash( $_POST['step'] ) ) : '';
+
+		if ( 'start' === $step ) {
+			$this->start();
+		} elseif ( 'finish' === $step ) {
+			$this->finish();
+		} elseif ( 'abort' === $step ) {
+			delete_option( self::LOCK );
+			wp_send_json_success();
+		}
+
+		wp_send_json_error( __( 'Invalid request', 'erident-custom-login-and-dashboard' ), 400 );
+
+	}
+
+	/**
+	 * Step 1: check if the migration can run & take the lock.
+	 */
+	private function start() {
+
 		if ( cldashboard_is_udb_installed() ) {
-			wp_send_json_error(
-				__( 'Ultimate Dashboard is already installed. To migrate, delete Ultimate Dashboard first, then start the migration again. Make sure the "Remove Data on Uninstall" option in Ultimate Dashboard is NOT checked, so your Ultimate Dashboard settings stay in place.', 'erident-custom-login-and-dashboard' ),
-				409
-			);
+			wp_send_json_error( __( 'Ultimate Dashboard is already installed, so the migration cannot run. Your Erident settings are unchanged.', 'erident-custom-login-and-dashboard' ), 409 );
 		}
 
 		// Erident gets deleted & Ultimate Dashboard installed, so WordPress must be able to write plugin files without asking for credentials.
@@ -82,23 +104,58 @@ class Migration {
 			wp_send_json_error( __( 'WordPress cannot install plugins automatically on this server. Please install Ultimate Dashboard manually.', 'erident-custom-login-and-dashboard' ), 503 );
 		}
 
-		// Check that Ultimate Dashboard can be downloaded before anything is removed.
+		// Check that Ultimate Dashboard can be downloaded.
 		if ( is_wp_error( wp_remote_head( 'https://api.wordpress.org/', [ 'timeout' => 10 ] ) ) ) {
 			wp_send_json_error( __( 'WordPress.org cannot be reached, so Ultimate Dashboard cannot be downloaded. Please check your internet connection. If you use a proxy, try to disable it.', 'erident-custom-login-and-dashboard' ), 503 );
 		}
 
-		// Never take this from the request: it's the plugin that gets deleted.
-		$this->old_plugin_basename = CUSTOM_LOGIN_DASHBOARD_PLUGIN_BASENAME;
+		// Only one migration at a time (e.g. in two tabs). A lock older than 15 minutes is left over from a broken run.
+		if ( ! $this->take_lock() ) {
+			wp_cache_delete( self::LOCK, 'options' );
+
+			if ( time() - (int) get_option( self::LOCK ) < 15 * MINUTE_IN_SECONDS ) {
+				wp_send_json_error( __( 'The migration is already running, e.g. in another tab.', 'erident-custom-login-and-dashboard' ), 409 );
+			}
+
+			update_option( self::LOCK, time(), false );
+		}
+
+		wp_send_json_success();
 
 	}
 
 	/**
-	 * Migrate to Ultimate Dashboard.
+	 * Take the migration lock.
+	 *
+	 * Not add_option(): it checks & then writes, so two requests at the same time would both get it.
+	 *
+	 * @return bool Whether the lock was taken.
 	 */
-	private function migrate() {
+	private function take_lock() {
 
-		if ( ! file_exists( WP_PLUGIN_DIR . '/' . $this->old_plugin_basename ) ) {
-			wp_send_json_error( __( 'Erident Custom Login & Dashboard plugin was not found', 'erident-custom-login-and-dashboard' ), 403 );
+		global $wpdb;
+
+		$inserted = $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'no')", self::LOCK, time() ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
+		wp_cache_delete( 'notoptions', 'options' );
+		wp_cache_delete( self::LOCK, 'options' );
+
+		return 1 === $inserted;
+
+	}
+
+	/**
+	 * Step 2: copy the settings to Ultimate Dashboard & remove this plugin.
+	 */
+	private function finish() {
+
+		if ( ! get_option( self::LOCK ) ) {
+			wp_send_json_error( __( 'The migration was not started. Please reload the page and try again.', 'erident-custom-login-and-dashboard' ), 409 );
+		}
+
+		if ( ! cldashboard_is_udb_installed() ) {
+			delete_option( self::LOCK );
+			wp_send_json_error( __( 'Ultimate Dashboard is not installed. Your Erident settings are unchanged.', 'erident-custom-login-and-dashboard' ), 409 );
 		}
 
 		$this->migrate_settings();
@@ -107,19 +164,28 @@ class Migration {
 
 		deactivate_plugins( $this->old_plugin_basename );
 
-		$deletion = delete_plugins( [ $this->old_plugin_basename ] );
+		$deletion = file_exists( WP_PLUGIN_DIR . '/' . $this->old_plugin_basename ) ? delete_plugins( [ $this->old_plugin_basename ] ) : true;
 
-		if ( $deletion && ! is_wp_error( $deletion ) ) {
-			// If the plugin is deleted successfully, let's delete the option.
+		delete_option( self::LOCK );
+
+		if ( true === $deletion ) {
 			delete_option( 'plugin_erident_settings' );
-			wp_send_json_success( __( 'Erident Custom Login & Dashboard has been removed.', 'erident-custom-login-and-dashboard' ) );
-		} elseif ( is_wp_error( $deletion ) ) {
-			wp_send_json_error( $deletion->get_error_message(), 403 );
-		} elseif ( null === $deletion ) {
-			wp_send_json_error( __( 'Filesystem credentials are required', 'erident-custom-login-and-dashboard' ), 403 );
-		} else {
-			wp_send_json_error( __( 'Erident Custom Login & Dashboard plugin is not specified', 'erident-custom-login-and-dashboard' ), 401 );
+
+			wp_send_json_success(
+				[
+					'removed' => true,
+					'message' => __( 'Settings moved to Ultimate Dashboard & Erident Custom Login & Dashboard removed.', 'erident-custom-login-and-dashboard' ),
+				]
+			);
 		}
+
+		// The settings are in Ultimate Dashboard already, so carry on & let the user delete the plugin by hand.
+		wp_send_json_success(
+			[
+				'removed' => false,
+				'message' => __( 'Settings moved to Ultimate Dashboard. Erident Custom Login & Dashboard is deactivated, but could not be deleted. You can delete it on the Plugins screen.', 'erident-custom-login-and-dashboard' ),
+			]
+		);
 
 	}
 
@@ -204,6 +270,7 @@ class Migration {
 		}
 
 		$logo_image_url = isset( $erident_options['dashboard_image_logo'] ) && ! empty( $erident_options['dashboard_image_logo'] ) ? $erident_options['dashboard_image_logo'] : '';
+		$logo_image_url = $this->keep_image( $logo_image_url );
 
 		if ( $logo_image_url ) {
 			$udb_login_options['logo_image'] = $logo_image_url;
@@ -239,6 +306,7 @@ class Migration {
 		}
 
 		$bg_image_url = isset( $erident_options['top_bg_image'] ) && ! empty( $erident_options['top_bg_image'] ) ? $erident_options['top_bg_image'] : '';
+		$bg_image_url = $this->keep_image( $bg_image_url );
 
 		if ( $bg_image_url ) {
 			$udb_login_options['bg_image'] = $bg_image_url;
@@ -332,6 +400,7 @@ class Migration {
 		}
 
 		$form_bg_image_url = isset( $erident_options['login_bg_image'] ) && ! empty( $erident_options['login_bg_image'] ) ? $erident_options['login_bg_image'] : '';
+		$form_bg_image_url = $this->keep_image( $form_bg_image_url );
 
 		if ( $form_bg_image_url ) {
 			$udb_login_options['form_bg_image'] = $form_bg_image_url;
@@ -438,6 +507,58 @@ class Migration {
 		}
 
 		update_option( 'udb_login', $udb_login_options );
+
+	}
+
+	/**
+	 * Copy an image that lives in this plugin's folder (e.g. the default logo) to the uploads folder.
+	 *
+	 * The plugin folder gets deleted, so its images would be gone.
+	 *
+	 * @param string $url The image URL.
+	 *
+	 * @return string The URL to use: unchanged, the copy's URL, or empty if the copy failed.
+	 */
+	private function keep_image( $url ) {
+
+		$no_scheme  = '#^https?:#i';
+		$plugin_url = preg_replace( $no_scheme, '', CUSTOM_LOGIN_DASHBOARD_PLUGIN_URL ) . '/';
+		$image_url  = preg_replace( $no_scheme, '', $url );
+
+		if ( 0 !== strpos( $image_url, $plugin_url ) ) {
+			return $url;
+		}
+
+		$plugin_dir = realpath( CUSTOM_LOGIN_DASHBOARD_PLUGIN_DIR );
+		$file       = realpath( CUSTOM_LOGIN_DASHBOARD_PLUGIN_DIR . '/' . strtok( substr( $image_url, strlen( $plugin_url ) ), '?#' ) );
+		$file_type  = $file ? wp_check_filetype( $file ) : [];
+
+		if ( ! $plugin_dir || ! $file || 0 !== strpos( $file, $plugin_dir ) || empty( $file_type['type'] ) ) {
+			return '';
+		}
+
+		$upload = wp_upload_bits( basename( $file ), null, file_get_contents( $file ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file.
+
+		if ( ! empty( $upload['error'] ) ) {
+			return '';
+		}
+
+		// Add it to the media library too.
+		$attachment_id = wp_insert_attachment(
+			[
+				'post_mime_type' => $upload['type'],
+				'post_title'     => sanitize_file_name( pathinfo( $upload['file'], PATHINFO_FILENAME ) ),
+				'post_status'    => 'inherit',
+			],
+			$upload['file']
+		);
+
+		if ( $attachment_id && ! is_wp_error( $attachment_id ) ) {
+			require_once ABSPATH . 'wp-admin/includes/image.php';
+			wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $upload['file'] ) );
+		}
+
+		return $upload['url'];
 
 	}
 
