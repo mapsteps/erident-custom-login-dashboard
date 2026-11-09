@@ -1,307 +1,203 @@
 /**
- * --------------------------------------------------
- * Animation
- * --------------------------------------------------
+ * Erident settings page.
+ * Builds on heatbox.css and uses its --heatbox-* tokens.
  */
-@-webkit-keyframes loadingSpinAround {
-	from {
-		transform: rotate(0);
-	}
-	to {
-		transform: rotate(359deg);
-	}
-}
-@keyframes loadingSpinAround {
-	from {
-		transform: rotate(0);
-	}
-	to {
-		transform: rotate(359deg);
-	}
+
+/* Tab panels: shown by settings-page.js */
+.cldashboard-settings-page .heatbox-admin-panel {
+	display: none;
 }
 
-/**
- * --------------------------------------------------
- * Heatbox adjustment
- * --------------------------------------------------
- */
-/* exists to display the updated icon */
-.heatbox h2 {
-	position: relative;
+/* Number fields with a unit */
+.cldashboard-settings-page .heatbox input.small-text {
+	width: 100px;
 }
 
-.heatbox-cols {
-	display: flex;
-	flex-wrap: wrap;
+.cldashboard-unit {
+	margin-inline-start: 6px;
+	color: var(--heatbox-text-muted);
 }
 
-.heatbox-group .heatbox:not(:first-child) {
-	margin-top: -21px;
-}
-
-.heatbox-group .heatbox:not(:first-child) h2 {
-	background-color: #f7f7f7;
-	border-top-width: 0;
-}
-
-/**
- * ------------------------------
- * Setting fields
- * ------------------------------
- */
-.setting-fields {
-	padding: 25px 15px;
-}
-
-.setting-fields.is-gapless {
-	padding: 0;
-}
-
-.setting-fields .label {
-	display: block;
-	font-weight: 600;
-}
-
-.setting-fields .description {
-	font-weight: 400;
-}
-
-hr {
-	margin: 20px 0;
-	border-top: 1px solid #eee;
-	border-bottom: 0;
-}
-
-.setting-fields .field:last-child {
-	margin-bottom: 0;
-}
-
-.setting-fields .field {
-	margin-bottom: 20px;
-}
-
-.field.is-horizontal {
+/* Image field: URL, choose & remove buttons */
+.cldashboard-image-field {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
+	gap: 8px;
 }
 
-.field.is-horizontal .field-label {
-	width: 30%;
+.cldashboard-image-field input {
+	flex: 1 1 200px;
+	min-width: 0;
+	max-width: 25em;
 }
 
-.field.is-horizontal .field-body {
-	padding-left: 20px;
-	width: 70%;
-}
-
-.general-setting-field {
-	max-width: 100%;
-}
-
-.general-setting-field[type="text"] {
-	width: 500px;
-}
-
-.general-setting-field.is-small {
-	width: 300px;
-}
-
-.general-setting-field.is-tiny {
-	width: 105px;
-}
-
-/**
- * --------------------------------------------------
- * Form Footer
- * --------------------------------------------------
- */
-.cldashboard-form-footer {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-}
-
-.cldashboard-submit-area,
-.cldashboard-reset-area {
-	display: flex;
-	align-items: center;
-	width: 50%;
-}
-
-.cldashboard-submit-area {
-	justify-content: flex-start;
-}
-
-.cldashboard-reset-area {
-	justify-content: flex-end;
-}
-
-/**
- * --------------------------------------------------
- * Button
- * --------------------------------------------------
- */
-.button.cldashboard-button {
+.cldashboard-image-field .button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 }
 
-.button.cldashboard-button.is-hidden {
-	display: none;
+.cldashboard-image-field .cldashboard-clear-button {
+	width: var(--heatbox-control-height);
+	padding: 0;
 }
 
-.button.cldashboard-button.is-loading {
-	justify-content: center;
-	color: transparent !important;
-	pointer-events: none;
+.cldashboard-image-field .cldashboard-clear-button .dashicons {
+	margin: 0;
 }
 
-.button.cldashboard-button.is-loading::after {
-	content: "";
-	position: absolute;
-	width: 1em;
-	display: block;
-	height: 1em;
-	border: 2px solid #dbdbdb;
-	border-color: transparent transparent #fff #fff !important;
-	border-radius: 290486px;
-	-webkit-animation: loadingSpinAround 0.5s infinite linear;
-	animation: loadingSpinAround 0.5s infinite linear;
+/* Toggles: line up with the label */
+.cldashboard-settings-page .form-table td > .toggle-switch {
+	margin-top: 10px;
 }
 
-.button.cldashboard-button.cldashboard-load-defaults-button.is-loading::after {
-	border: 2px solid #19629d;
-	border-color: transparent transparent #2271b1 #2271b1 !important;
+/* Color picker: undo heatbox's button padding, 40px high like the other controls */
+.cldashboard-settings-page .wp-picker-container .button.wp-color-result {
+	height: var(--heatbox-control-height);
+	min-height: var(--heatbox-control-height);
+	margin: 0;
+	padding: 0 0 0 40px;
+	border-radius: var(--heatbox-radius-control);
 }
 
-.button.cldashboard-submit-button {
-	margin-right: 10px;
+.cldashboard-settings-page .wp-color-result .wp-color-result-text {
+	height: 100%;
+	padding: 0 12px;
+	line-height: calc(var(--heatbox-control-height) - 2px);
+	border-radius: 0 calc(var(--heatbox-radius-control) - 1px) calc(var(--heatbox-radius-control) - 1px) 0;
 }
 
-.button.cldashboard-reset-button {
-	margin-left: 10px;
-	margin-right: 10px;
-	color: #fff;
-	background-color: tomato;
-	border-color: tomato;
+.cldashboard-settings-page .wp-picker-input-wrap .button {
+	min-height: var(--heatbox-control-height);
 }
 
-.button.cldashboard-reset-button:hover,
-.button.cldashboard-reset-button:active,
-.button.cldashboard-reset-button:focus {
-	color: #fff;
-	background-color: #f5492a;
-	border-color: #f5492a;
+/* Color picker inside a box */
+.cldashboard-settings-page .wp-picker-container input[type="text"].wp-color-picker {
+	width: 90px;
 }
 
-.cldashboard-reset-button:focus {
-	box-shadow: 0 0 0 1px #fff, 0 0 0 3px #f5492a;
-}
-
-/**
- * --------------------------------------------------
- * Notice
- * --------------------------------------------------
- */
-.cldashboard-notice {
-	font-weight: 500;
-	opacity: 0;
-	visibility: hidden;
-	transition: 350ms all linear;
-}
-
-.cldashboard-notice.is-shown {
-	opacity: 1;
-	visibility: visible;
-	transition: 350ms all linear;
-}
-
-.cldashboard-notice.is-success {
-	color: rgb(28, 129, 28);
-}
-
-.cldashboard-notice.is-error {
-	color: tomato;
-}
-
-/**
- * --------------------------------------------------
- * Color picker
- * --------------------------------------------------
- */
-.iris-picker-inner {
+.cldashboard-settings-page .iris-picker-inner {
 	display: grid;
 	grid-template-columns: 1fr 20px 20px;
-	grid-gap: 7px;
+	gap: 7px;
 }
 
-.iris-picker-inner > * {
+.cldashboard-settings-page .iris-picker-inner > * {
 	width: 100% !important;
 	margin-left: 0 !important;
 }
 
-/**
- * --------------------------------------------------
- * Tools
- * --------------------------------------------------
- */
-.cldashboard-tools-container {
+/* Form footer: save on the left, reset on the right */
+.cldashboard-form-footer {
 	display: flex;
 	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.cldashboard-submit-area,
+.cldashboard-reset-area {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+}
+
+.cldashboard-settings-page .button.is-hidden {
+	display: none;
+}
+
+.cldashboard-settings-page .button.cldashboard-reset-button {
+	color: #b32d2e;
+	border-color: #b32d2e;
+}
+
+.cldashboard-settings-page .button.cldashboard-reset-button:hover,
+.cldashboard-settings-page .button.cldashboard-reset-button:focus {
+	color: #fff;
+	background-color: #b32d2e;
+	border-color: #b32d2e;
+}
+
+/* Save & reset status */
+.cldashboard-notice {
+	font-weight: 500;
+	opacity: 0;
+	transition: opacity var(--heatbox-transition);
+}
+
+.cldashboard-notice.is-shown {
+	opacity: 1;
+}
+
+.cldashboard-notice.is-success {
+	color: #00a32a;
+}
+
+.cldashboard-notice.is-error {
+	color: #b32d2e;
+}
+
+/* Tools: export & import side by side */
+.cldashboard-tools-container {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--heatbox-gap);
 }
 
 .cldashboard-tools-container .heatbox {
-	display: flex;
-	flex-direction: column;
-	flex: 0 49%;
-	margin-right: 2%;
+	margin: 0;
 }
 
-.cldashboard-tools-container .heatbox:nth-child(even) {
-	margin-right: 0;
+.cldashboard-tools-container .notice {
+	margin: 0 0 16px;
 }
 
-.cldashboard-tools-container p.submit {
-	margin-bottom: 0;
+/* Featured products */
+.featured-products.heatbox-container-wide {
+	max-width: 1200px;
 }
 
-@media screen and (max-width: 768px) {
-	.cldashboard-tools-container .heatbox {
-		flex: 0 100%;
-		margin-right: 0;
-	}
-	
-	.heatbox-sidebar {
-		margin-top: 15px;
-	}
-}
-
-/**
- * --------------------------------------------------
- * Featured products
- * --------------------------------------------------
- */
 .featured-products > h2 {
+	margin: 0 0 24px;
+	font-size: 20px;
+	font-weight: 600;
 	text-align: center;
-	margin-bottom: 50px;
-	font-size: 24px;
+	color: var(--heatbox-text);
 }
 
 .featured-products .products {
-	display: flex;
-	justify-content: space-between;
-	flex-wrap: wrap;
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: var(--heatbox-gap);
+	margin: 0;
+	padding: 0;
+	list-style: none;
 }
 
 .featured-products .products li {
-	width: 32%;
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+}
+
+.featured-products .products .heatbox-content {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+.featured-products .products .heatbox-content .button {
+	align-self: flex-start;
+	margin-top: auto;
 }
 
 .featured-products .products .subheadline {
-	font-weight: 600;
-	margin-top: -6px;
+	margin: 0 0 8px;
+	font-weight: 500;
+	color: var(--heatbox-text);
 }
 
 .featured-products .products img {
@@ -309,16 +205,19 @@ hr {
 }
 
 .featured-products .credit {
-	margin-top: 20px;
+	margin: 32px 0 20px;
 	text-align: center;
-	opacity: 0.5;
+	color: var(--heatbox-text-muted);
 }
 
-/**
- * --------------------------------------------------
- * Sidebar
- * --------------------------------------------------
- */
-.review-icons {
-	color: #f2dd07;
+@media screen and (max-width: 782px) {
+	.cldashboard-tools-container,
+	.featured-products .products {
+		grid-template-columns: 1fr;
+	}
+
+	.cldashboard-form-footer {
+		flex-direction: column;
+		align-items: stretch;
+	}
 }

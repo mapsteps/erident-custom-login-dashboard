@@ -1,10 +1,18 @@
 {
-    "name": "mapsteps/custom-login-dashboard",
-    "description": "Custom login & dashboard plugin for WordPress",
-    "type": "library",
-    "license": "MIT",
-    "minimum-stability": "stable",
-    "require": {
-        "aristath/ari-color": "^1.1"
-    }
+	"name": "mapsteps/erident-custom-login-and-dashboard",
+	"description": "Erident Custom Login and Dashboard – customize the WordPress login screen and admin footer.",
+	"type": "wordpress-plugin",
+	"license": "GPL-3.0-or-later",
+	"require-dev": {
+		"wp-coding-standards/wpcs": "^3.1"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	},
+	"scripts": {
+		"lint": "phpcs --standard=phpcs.xml --exclude=Generic.Files.LineEndings .",
+		"fix": "phpcbf --standard=phpcs.xml --exclude=Generic.Files.LineEndings ."
+	}
 }

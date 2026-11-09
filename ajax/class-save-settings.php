@@ -27,45 +27,15 @@ class Save_Settings {
 	 * Save menu.
 	 */
 	public function save() {
-		$nonce = isset( $_POST['nonce'] ) ? $_POST['nonce'] : '';
-
-		if ( ! wp_verify_nonce( $nonce, 'cldashboard_nonce_save_settings' ) ) {
+		if ( ! check_ajax_referer( 'cldashboard_nonce_save_settings', 'nonce', false ) ) {
 			wp_send_json_error( __( 'Invalid token', 'erident-custom-login-and-dashboard' ), 401 );
 		}
 
-		$available_fields = cldashboard_get_field_data_types();
-
-		$raw_post_data = $_POST;
-		$post_data     = [];
-
-		foreach ( $available_fields as $field => $value_type ) {
-			if ( isset( $raw_post_data[ $field ] ) ) {
-				$value = $raw_post_data[ $field ];
-
-				switch ( $value_type ) {
-					case 'int':
-						$post_data[ $field ] = absint( $value );
-						break;
-
-					case 'float':
-						$post_data[ $field ] = floatval( $value );
-						break;
-
-					case 'bool':
-						$value = (bool) $value;
-
-						if ( $value ) {
-							$post_data[ $field ] = 1;
-						}
-
-						break;
-
-					default:
-						$post_data[ $field ] = sanitize_text_field( $value );
-						break;
-				}
-			}
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( __( 'You are not allowed to do this', 'erident-custom-login-and-dashboard' ), 403 );
 		}
+
+		$post_data = cldashboard_sanitize_settings( wp_unslash( $_POST ) );
 
 		/**
 		 * Update settings.

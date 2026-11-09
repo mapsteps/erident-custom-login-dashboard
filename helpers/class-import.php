@@ -7,38 +7,43 @@
 
 namespace CustomLoginDashboard\Helpers;
 
+defined( 'ABSPATH' ) || die( "Can't access directly" );
+
 /**
- * Setup widget import functions.
+ * Setup settings import functions.
  */
 class Import {
-	/**
-	 * Setup action & filter hooks.
-	 */
-	public function __construct() {}
 
 	/**
 	 * Run importer.
+	 *
+	 * The nonce and capability are checked in Setup::process_import().
 	 */
 	public function import() {
 
-		$explodes  = explode( '.', $_FILES['import_file']['name'] );
-		$extension = end( $explodes );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is checked by the caller, the file is validated below.
+		$file = isset( $_FILES['import_file'] ) && is_array( $_FILES['import_file'] ) ? $_FILES['import_file'] : [];
+
+		if ( empty( $file['tmp_name'] ) || ! empty( $file['error'] ) || ! is_uploaded_file( $file['tmp_name'] ) ) {
+			wp_die( esc_html__( 'Please upload a file to import.', 'erident-custom-login-and-dashboard' ), '', [ 'back_link' => true ] );
+		}
+
+		$extension = strtolower( pathinfo( sanitize_file_name( $file['name'] ), PATHINFO_EXTENSION ) );
 
 		if ( 'json' !== $extension ) {
-			wp_die( __( 'Please upload a valid .json file' ) );
+			wp_die( esc_html__( 'Please upload a valid .json file.', 'erident-custom-login-and-dashboard' ), '', [ 'back_link' => true ] );
 		}
 
-		$import_file = $_FILES['import_file']['tmp_name'];
+		$settings = json_decode( file_get_contents( $file['tmp_name'] ), true );
 
-		if ( empty( $import_file ) ) {
-			wp_die( __( 'Please upload a file to import' ) );
+		if ( ! is_array( $settings ) ) {
+			wp_die( esc_html__( 'The file does not contain valid settings.', 'erident-custom-login-and-dashboard' ), '', [ 'back_link' => true ] );
 		}
 
-		// Retrieve the settings from the file and convert the json object to an array.
-		$settings = (array) json_decode( file_get_contents( $import_file ) );
+		update_option( 'plugin_erident_settings', cldashboard_sanitize_settings( $settings ) );
 
-		update_option( 'plugin_erident_settings', $settings );
-		echo '<div id="message" class="updated fade"><p><strong>' . __( 'New settings imported successfully!' ) . '</strong></p></div>';
+		wp_safe_redirect( admin_url( 'options-general.php?page=erident-custom-login-and-dashboard&imported=1#tools' ) );
+		exit;
 
 	}
 

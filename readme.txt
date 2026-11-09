@@ -1,55 +1,94 @@
 === Erident Custom Login and Dashboard ===
 Contributors: davidvongries, libinvbabu
-Tags: login, customisation, admin, dashboard, customise, erident, custom login, form, logo, customize, branding, login customizer, CSS, admin login, white label, login background, custom login page
-Requires at least: 3.0.0
-Tested up to: 6.4
-Stable tag: 4.3
+Tags: login, custom login, login page, login customizer, admin footer
+Requires at least: 5.3
+Tested up to: 7.1
 Requires PHP: 5.6
-License: GPL-3.0 License
-License URI: https://oss.ninja/gpl-3.0?organization=David%20Vongries&project=Erident%20Custom%20Login%20and%20Dashboard
+Stable tag: 4.3
+License: GPLv3 or later
+License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Fully customize the WordPress Login Screen.
+Customize the WordPress login screen: logo, background, login form & links. Plus your own admin footer text.
 
 == Description ==
-**Caution: Erident Custom Login and Dashboard is now Ultimate Dashboard. Please install [Ultimate Dashboard](https://wordpress.org/plugins/ultimate-dashboard/) instead.**
 
-**If you are an existing user of the Erident plugin you will be greeted with a 1-click migration to safely migrate from Erident to Ultimate Dashboard from your WordPress admin dashboard.**
+**Erident Custom Login and Dashboard** is a simple way to customize the **WordPress login screen**. Add your logo, set a background, style the login form and change the admin footer text – all from one settings page under *Settings → Custom Login & Dashboard*.
 
-**IMPORTANT! Please make sure you have the latest version of the Erident plugin (4.2 or above) installed before running the 1-click migration. The latest version fixes an earlier issue where non-admins were able to trigger the migration process which failed to install Ultimate Dashboard. If that’s been the case for you, please [install Ultimate Dashboard](https://wordpress.org/plugins/ultimate-dashboard/) manually. Your data was already migrated successfully.**
+**Erident is now part of [Ultimate Dashboard](https://ultimatedashboard.io/?utm_source=erident&utm_medium=repository&utm_campaign=udb).** Erident is in maintenance mode: it gets security & compatibility updates, but no new features. New login features go into Ultimate Dashboard, which is free too. Already using Erident? Move your settings over with the one-click migration (see below).
 
-Erident Custom Login and Dashboard is the #1 rated Plugin to customize the WordPress Login Screen. It's a clean & minimalist way for you to fully customize almost all aspects of the WordPress Login Page.
+== Why choose Erident? ==
 
-Create a custom WordPress login page with just a few clicks! All the settings to customize the WordPress login are located under Settings > Custom Login & Dashboard.
+= 🎨 Your brand on the login screen =
+Replace the WordPress logo with your own, set its size and change its title.
 
-=== Features ===
-Here is a list of some of the features available in Erident Custom Login & Dashboard:
+= 🖼️ Custom backgrounds =
+Use a background color or image for the login screen and the login form, with full control over repeat, position and size.
 
-* Add a custom Logo & Logo URL
-* Change the Login Page Background Color
-* Add a Background Image to your Login Screen
-* Completely customize the WordPress Login Form
-* Remove Footer links from the WordPress Login Page
-* Change the WordPress Footer Text
-* Change the WordPress Version Text
-* Import/Export Feature
-* & much more!
+= 🧩 Style the login form =
+Set the form's width, border, corner radius and shadow, and the colors and font sizes of labels, input fields, the button and links.
+
+= 🔗 Cleaner login links =
+Hide the "Register | Lost your password?" and "← Go to site" links below the login form.
+
+= 🦶 Admin footer text =
+Replace the text in the left and right of the WordPress admin footer.
+
+= 📦 Import & export =
+Move your settings to another site with a .json file.
+
+== How to use ==
+
+1. Go to *Settings → Custom Login & Dashboard*.
+2. In the *Login Screen* tab, add your logo, choose a background and style the login form.
+3. In the *Dashboard* tab, change the admin footer text.
+4. Click *Save Changes* and open your login page in a private window to see the result.
+
+== 🚀 Move to Ultimate Dashboard ==
+
+[Ultimate Dashboard](https://ultimatedashboard.io/?utm_source=erident&utm_medium=repository&utm_campaign=udb) lets you customize the login screen **live in the WordPress Customizer**, with more options, plus tools to customize the whole WordPress admin.
+
+The one-click migration on the Erident settings page installs Ultimate Dashboard, moves your Erident settings over and removes Erident. Your login screen stays the same.
+
+---------
+
+=== Advanced ===
+
+**Import & export:** under *Tools*, export your settings as a .json file and import them on another site.
+
+**Remove data on uninstall:** turn on *Remove Data on Uninstall* in the *Dashboard* tab to delete all Erident settings when you delete the plugin.
+
+---------
 
 === What's next? ===
-If you like Erident Custom Login and Dashboard, make sure to check out our other products:
+
+If you like Erident, make sure to check out our other products:
 
 * **[Ultimate Dashboard](https://ultimatedashboard.io/?utm_source=erident&utm_medium=repository&utm_campaign=udb)** - The #1 WordPress plugin to customize your WordPress dashboard and admin area.
+* **[WP Video Popup](https://wp-video-popup.com/?utm_source=erident&utm_medium=repository&utm_campaign=wp_video_popup)** - Add a YouTube, Vimeo or Rumble video popup to WordPress. Lightweight, privacy-friendly lightbox that works with any page builder.
 * **[Page Builder Framework](https://wp-pagebuilderframework.com/?utm_source=erident&utm_medium=repository&utm_campaign=wpbf)** - A fast & minimalistic WordPress theme designed for the new WordPress era.
 * **[Better Admin Bar](https://betteradminbar.com/?utm_source=erident&utm_medium=repository&utm_campaign=bab)** - The plugin to make your clients enjoy WordPress. It replaces the default admin bar to provide the best possible user experience when editing & navigating a website.
 
 == Installation ==
-1. Download the erident-custom-login-and-dashboard.zip file to your computer.
-1. Unzip the file.
-1. Upload the `erident-custom-login-and-dashboard` folder to your `/wp-content/plugins/` directory.
-1. Activate the plugin through the *Plugins* menu in WordPress.
+1. In your WordPress admin, go to *Plugins → Add New Plugin* and search for "Erident Custom Login".
+2. Click *Install Now*, then *Activate*.
+3. Go to *Settings → Custom Login & Dashboard* to customize your login screen.
 
 == Frequently Asked Questions ==
-= Are there more options to customize the WordPress Dashboard? =
-Yes! For more options and to fully customize the WordPress dashboard, check out **[Ultimate Dashboard](https://ultimatedashboard.io/?utm_source=erident&utm_medium=repository&utm_campaign=udb)**.
+
+= How do I change the logo on the WordPress login page? =
+Go to *Settings → Custom Login & Dashboard*, choose an image under *Logo* and set its width and height. Click *Save Changes*.
+
+= Is Erident still maintained? =
+Yes, with security & compatibility updates. New features go into [Ultimate Dashboard](https://ultimatedashboard.io/?utm_source=erident&utm_medium=repository&utm_campaign=udb), which also has a live login customizer.
+
+= What happens when I migrate to Ultimate Dashboard? =
+Ultimate Dashboard is installed and activated, your Erident settings are moved over and Erident is removed. Your login screen stays the same, and you can keep customizing it live in the WordPress Customizer.
+
+= I already have Ultimate Dashboard installed. Can I still migrate? =
+The migration only runs if Ultimate Dashboard isn't installed yet, so your existing Ultimate Dashboard settings are never overwritten.
+
+= Are my settings deleted when I deactivate the plugin? =
+No. Settings are only deleted when you delete the plugin and *Remove Data on Uninstall* is turned on.
 
 == Screenshots ==
 1. Settings Page
@@ -58,6 +97,19 @@ Yes! For more options and to fully customize the WordPress dashboard, check out 
 4. Customized WordPress Login Screen (Example 2)
 
 == Changelog ==
+= 5.0 November 09, 2026 =
+* New: Redesigned, accessible settings page
+* New: The login form settings are combined in one box
+* Tweak: The migration to Ultimate Dashboard is offered in a box on the settings page and a dismissible notice on the Dashboard & Plugins screens, instead of on every admin page
+* Tweak: The migration checks that Ultimate Dashboard can be installed before anything is removed
+* Tweak: "Remove Data on Uninstall" deletes the settings when the plugin is deleted, no longer on deactivation
+* Tweak: Translations are loaded from translate.wordpress.org
+* Tweak: Requires WordPress 5.3
+* Fixed: Security improvements (capability checks, nonces, sanitized & escaped settings)
+* Fixed: Import only accepts .json files
+* Fixed: The migration copied a custom background size & the login form background position incorrectly
+* Tested up to WordPress 7.1
+
 = 4.3 | November 30, 2023 =
 * Caution! Please follow the instructions on the admin notice and migrate to Ultimate Dashboard as this plugin is no longer actively supported.
 * Tested up to WordPress 6.4
@@ -201,9 +253,3 @@ Yes! For more options and to fully customize the WordPress dashboard, check out 
 
 = 1.0 =
 * First version.
-
-== Upgrade Notice ==
-
-= 3.5.8 =
-Password Label field color fix
-Compatibility with latest WordPress version

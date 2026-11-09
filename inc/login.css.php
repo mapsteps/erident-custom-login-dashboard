@@ -14,6 +14,9 @@ defined( 'ABSPATH' ) || die( "Can't access directly" );
  */
 return function ( $settings ) {
 
+	// Sanitize on output too, the option may contain values from older versions.
+	$settings = cldashboard_sanitize_settings( $settings );
+
 	$page_bg_color  = isset( $settings['top_bg_color'] ) && ! empty( $settings['top_bg_color'] ) ? $settings['top_bg_color'] : '';
 	$page_bg_image  = isset( $settings['top_bg_image'] ) && ! empty( $settings['top_bg_image'] ) ? $settings['top_bg_image'] : '';
 	$page_bg_repeat = isset( $settings['top_bg_repeat'] ) && ! empty( $settings['top_bg_repeat'] ) ? $settings['top_bg_repeat'] : '';
@@ -49,8 +52,7 @@ return function ( $settings ) {
 	$btn_bg_color_hover = '';
 
 	if ( ! empty( $btn_bg_color ) ) {
-		$btn_bg_color_hover = ariColor::newColor( $btn_bg_color );
-		$btn_bg_color_hover = $btn_bg_color_hover->getNew( 'alpha', 0.9 )->toCSS( 'rgba' );
+		$btn_bg_color_hover = cldashboard_color_with_alpha( $btn_bg_color, 0.9 );
 	}
 
 	$form_width         = isset( $settings['dashboard_login_width'] ) && ! empty( $settings['dashboard_login_width'] ) ? $settings['dashboard_login_width'] : '';
@@ -69,8 +71,7 @@ return function ( $settings ) {
 			$login_form_bg_opacity = '' !== $settings['dashboard_login_bg_opacity'] ? $settings['dashboard_login_bg_opacity'] : 1; // 0 is allowed here.
 
 			if ( false === stripos( $login_form_bg_color, 'rgba' ) && 1 > $login_form_bg_opacity ) {
-				$login_form_bg_color = ariColor::newColor( $login_form_bg_color );
-				$login_form_bg_color = $login_form_bg_color->getNew( 'alpha', $login_form_bg_opacity )->toCSS( 'rgba' );
+				$login_form_bg_color = cldashboard_color_with_alpha( $login_form_bg_color, $login_form_bg_opacity );
 			}
 		}
 	}
@@ -109,7 +110,7 @@ return function ( $settings ) {
 		<?php endif; ?>
 
 		<?php if ( ! empty( $page_bg_image ) ) : ?>
-			background-image: url(<?php echo esc_html( $page_bg_image ); ?>) !important;
+			background-image: url("<?php echo esc_url( $page_bg_image ); ?>") !important;
 
 			<?php if ( ! empty( $page_bg_repeat ) ) : ?>
 				background-repeat: <?php echo esc_html( $page_bg_repeat ); ?> !important;
@@ -129,7 +130,7 @@ return function ( $settings ) {
 		margin: 0 auto;
 
 		<?php if ( ! empty( $logo_image ) ) : ?>
-			background-image: url(<?php echo esc_html( $logo_image ); ?>) !important;
+			background-image: url("<?php echo esc_url( $logo_image ); ?>") !important;
 		<?php endif; ?>
 
 		<?php if ( ! empty( $logo_width ) || ! empty( $logo_height ) ) : ?>
@@ -179,7 +180,7 @@ return function ( $settings ) {
 		<?php endif; ?>
 
 		<?php if ( ! empty( $login_bg_image ) ) : ?>
-			background-image: url(<?php echo esc_html( $login_bg_image ); ?>) !important;
+			background-image: url("<?php echo esc_url( $login_bg_image ); ?>") !important;
 
 			<?php if ( ! empty( $login_bg_repeat ) ) : ?>
 				background-repeat: <?php echo esc_html( $login_bg_repeat ); ?> !important;

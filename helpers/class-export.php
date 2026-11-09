@@ -7,31 +7,30 @@
 
 namespace CustomLoginDashboard\Helpers;
 
+defined( 'ABSPATH' ) || die( "Can't access directly" );
+
 /**
- * Setup widget export functions.
+ * Setup settings export functions.
  */
 class Export {
-	/**
-	 * Setup action & filter hooks.
-	 */
-	public function __construct() {}
 
 	/**
-	 * Run importer.
+	 * Run exporter.
+	 *
+	 * The nonce and capability are checked in Setup::process_export().
 	 */
 	public function export() {
 
 		$settings = get_option( 'plugin_erident_settings', [] );
 
-		ignore_user_abort( true );
-
 		nocache_headers();
 		header( 'Content-Type: application/json; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename=erident-settings-export-' . date( 'm-d-Y' ) . '.json' );
+		header( 'Content-Disposition: attachment; filename=erident-settings-export-' . gmdate( 'm-d-Y' ) . '.json' );
 		header( 'Expires: 0' );
 
-		echo json_encode( $settings );
+		echo wp_json_encode( $settings );
 		exit;
 
 	}
+
 }

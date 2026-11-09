@@ -2,192 +2,178 @@
  * Migrate from Erident Custom Login & Dashboard to Ultimate Dashboard.
  */
 (function ($) {
+	var data = window.CldashboardMigration;
+	var i18n = data.i18n;
 	var isRequesting = false;
-	var loading = {};
-	var ajax = {};
-	var migrationButton;
-
+	var button;
 	var elms = {};
-
-	elms.migrationFailed = document.querySelector(
-		".cldashboard-migration-status.migration-failed"
-	);
-
-	if (!elms.migrationFailed) return;
-
-	elms.errorMessage = elms.migrationFailed.querySelector(".error-message");
-
-	elms.uninstallOldPlugin = document.querySelector(
-		".cldashboard-migration-status.cldashboard-uninstalled"
-	);
-
-	elms.uninstallOldPluginMsg =
-		elms.uninstallOldPlugin.querySelector(".process-message");
-
-	elms.installNewPlugin = document.querySelector(
-		".cldashboard-migration-status.ultimate-dashboard-installed"
-	);
-
-	elms.installNewPluginMsg =
-		elms.installNewPlugin.querySelector(".process-message");
-
-	elms.activateNewPlugin = document.querySelector(
-		".cldashboard-migration-status.ultimate-dashboard-activated"
-	);
-
-	elms.activateNewPluginMsg =
-		elms.activateNewPlugin.querySelector(".process-message");
 
 	/**
 	 * Call the main functions here.
 	 */
 	function init() {
-		$(document).on("click", ".cldashboard-migration-button", ajax.migration);
+		$(document).on("click", ".cldashboard-migration-button", startMigration);
+		$(document).on(
+			"click",
+			".cldashboard-migration-notice .notice-dismiss",
+			dismissNotice
+		);
 	}
 
-	loading.start = function () {
-		migrationButton.classList.add("is-loading");
-	};
-
-	loading.stop = function () {
-		migrationButton.classList.remove("is-loading");
-	};
+	/**
+	 * Get the status elements of the box or notice that was clicked.
+	 *
+	 * @param {HTMLElement} wrapper The migration box or notice.
+	 */
+	function getElements(wrapper) {
+		elms.failed = wrapper.querySelector(".migration-failed");
+		elms.errorMessage = elms.failed.querySelector(".error-message");
+		elms.uninstall = wrapper.querySelector(".cldashboard-uninstalled");
+		elms.install = wrapper.querySelector(".ultimate-dashboard-installed");
+		elms.activate = wrapper.querySelector(".ultimate-dashboard-activated");
+	}
 
 	/**
-	 * Send ajax request to save the settings.
+	 * Show a step as running.
+	 *
+	 * @param {HTMLElement} step The status element.
+	 * @param {string} message The message.
 	 */
-	ajax.migration = function (e) {
-		e.preventDefault();
+	function stepWaiting(step, message) {
+		step.querySelector(".process-message").textContent = message;
+		step.classList.add("is-waiting");
+	}
 
-		var confirmMsg =
-			"Please don't leave this page until the migration is complete. Migrate now?";
+	/**
+	 * Show a step as done.
+	 *
+	 * @param {HTMLElement} step The status element.
+	 * @param {string} message The message.
+	 */
+	function stepDone(step, message) {
+		step.querySelector(".process-message").textContent = message;
+		step.classList.remove("is-waiting");
+		step.classList.add("is-done");
+	}
 
-		if (!confirm(confirmMsg)) {
-			return;
+	/**
+	 * Show an error & stop.
+	 *
+	 * @param {HTMLElement} step The status element that failed.
+	 * @param {string} message The error message.
+	 */
+	function fail(step, message) {
+		elms.errorMessage.textContent = message || i18n.genericError;
+		step.classList.remove("is-waiting");
+		elms.failed.classList.add("is-done");
+		button.classList.remove("is-loading");
+		button.disabled = false;
+		isRequesting = false;
+	}
+
+	/**
+	 * Get the error message of a failed request.
+	 *
+	 * @param {Object} response The response.
+	 */
+	function getErrorMessage(response) {
+		if (response && response.responseJSON && response.responseJSON.data) {
+			return String(response.responseJSON.data);
 		}
 
-		if (!migrationButton) migrationButton = this;
+		if (response && response.errorMessage) {
+			return String(response.errorMessage);
+		}
 
-		if (isRequesting) return;
+		return "";
+	}
+
+	/**
+	 * Step 1: migrate the settings & remove Erident.
+	 *
+	 * @param {Event} e The click event.
+	 */
+	function startMigration(e) {
+		e.preventDefault();
+
+		if (isRequesting || !window.confirm(i18n.confirm)) return;
+
 		isRequesting = true;
-		loading.start();
+		button = this;
+		button.classList.add("is-loading");
+		button.disabled = true;
 
-		var data = {};
-
-		data.action = "cldashboard_migration";
-		data.nonce = CldashboardMigration.nonces.migration;
-
-		data.old_plugin_slug = CldashboardMigration.oldPlugin.slug;
-		data.old_plugin_basename = CldashboardMigration.oldPlugin.basename;
-
-		data.new_plugin_slug = CldashboardMigration.newPlugin.slug;
-		data.new_plugin_basename = CldashboardMigration.newPlugin.basename;
-
-		elms.uninstallOldPluginMsg.innerHTML =
-			"Uninstalling Erident Custom Login & Dashboard plugin...";
-		elms.uninstallOldPlugin.classList.add("is-waiting");
-
-		elms.migrationFailed.classList.remove("is-done");
+		getElements(button.closest(".cldashboard-migration"));
+		elms.failed.classList.remove("is-done");
+		stepWaiting(elms.uninstall, i18n.uninstalling);
 
 		$.ajax({
-			url: ajaxurl,
+			url: window.ajaxurl,
 			type: "post",
 			dataType: "json",
-			data: data,
+			data: {
+				action: "cldashboard_migration",
+				nonce: data.nonces.migration,
+			},
 		})
 			.done(function (r) {
-				// Error is handled in the "fail" callback.
-				if (!r.success) return;
+				if (!r.success) {
+					fail(elms.uninstall, r.data);
+					return;
+				}
 
-				elms.uninstallOldPluginMsg.innerHTML = r.data;
-				elms.uninstallOldPlugin.classList.remove("is-waiting");
-				elms.uninstallOldPlugin.classList.add("is-done");
-
-				elms.installNewPluginMsg.innerHTML =
-					"Installing Ultimate Dashboard plugin...";
-				elms.installNewPlugin.classList.add("is-waiting");
-
-				isRequesting = false;
+				stepDone(elms.uninstall, i18n.uninstalled);
 				installUltimateDashboard();
 			})
 			.fail(function (jqXHR) {
-				var errorMessage =
-					"Something went wrong. Are you connected to the internet?";
-
-				if (jqXHR.responseJSON && jqXHR.responseJSON.data) {
-					errorMessage = jqXHR.responseJSON.data;
-				}
-
-				elms.errorMessage.innerHTML = errorMessage;
-				elms.uninstallOldPlugin.classList.remove("is-waiting");
-				elms.migrationFailed.classList.add("is-done");
-				loading.stop();
-				isRequesting = false;
+				fail(elms.uninstall, getErrorMessage(jqXHR));
 			});
-	};
+	}
 
+	/**
+	 * Step 2: install Ultimate Dashboard.
+	 */
 	function installUltimateDashboard() {
-		if (isRequesting) return;
-		isRequesting = true;
+		stepWaiting(elms.install, i18n.installing);
 
 		wp.updates.installPlugin({
-			slug: CldashboardMigration.newPlugin.slug,
+			slug: data.newPlugin.slug,
 			success: function () {
-				elms.installNewPluginMsg.innerHTML =
-					"Ultimate Dashboard plugin has been installed";
-				elms.installNewPlugin.classList.remove("is-waiting");
-				elms.installNewPlugin.classList.add("is-done");
-
-				elms.activateNewPluginMsg.innerHTML =
-					"Activating Ultimate Dashboard plugin...";
-				elms.activateNewPlugin.classList.add("is-waiting");
-
-				isRequesting = false;
+				stepDone(elms.install, i18n.installed);
 				activateUltimateDashboard();
 			},
-			error: function (jqXHR) {
-				if (jqXHR.responseJSON && jqXHR.responseJSON.data) {
-					elms.errorMessage.innerHTML = jqXHR.responseJSON.data;
-				}
-
-				elms.installNewPlugin.classList.remove("is-waiting");
-				elms.migrationFailed.classList.add("is-done");
-				loading.stop();
-				isRequesting = false;
+			error: function (response) {
+				fail(elms.install, getErrorMessage(response));
 			},
 		});
 	}
 
+	/**
+	 * Step 3: activate Ultimate Dashboard & go to its welcome screen.
+	 */
 	function activateUltimateDashboard() {
-		if (isRequesting) return;
-		isRequesting = true;
+		stepWaiting(elms.activate, i18n.activating);
 
 		$.ajax({
-			async: true,
 			type: "GET",
-			url: CldashboardMigration.newPlugin.activationUrl,
-			success: function () {
-				elms.activateNewPluginMsg.innerHTML =
-					"Ultimate Dashboard plugin has been activated";
-				elms.activateNewPlugin.classList.remove("is-waiting");
-				elms.activateNewPlugin.classList.add("is-done");
+			url: data.newPlugin.activationUrl,
+		})
+			.done(function () {
+				stepDone(elms.activate, i18n.activated);
+				window.location.replace(data.redirectUrl);
+			})
+			.fail(function (jqXHR) {
+				fail(elms.activate, getErrorMessage(jqXHR));
+			});
+	}
 
-				loading.stop();
-				isRequesting = false;
-
-				// Redirect to Ultimate Dashboard settings page.
-				window.location.replace(CldashboardMigration.redirectUrl);
-			},
-			error: function (jqXHR) {
-				if (jqXHR.responseJSON && jqXHR.responseJSON.data) {
-					elms.errorMessage.innerHTML = jqXHR.responseJSON.data;
-				}
-
-				elms.activateNewPlugin.classList.remove("is-waiting");
-				elms.migrationFailed.classList.add("is-done");
-				loading.stop();
-				isRequesting = false;
-			},
+	/**
+	 * Hide the notice for the current user.
+	 */
+	function dismissNotice() {
+		$.post(window.ajaxurl, {
+			action: "cldashboard_dismiss_migration_notice",
+			nonce: data.nonces.dismiss,
 		});
 	}
 

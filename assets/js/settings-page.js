@@ -73,18 +73,9 @@
 		setupColorPicker();
 		setupTabsNavigation();
 
-		var bgImageField = document.querySelector(".cldashboard-bg-image-field");
-		if (bgImageField) setupMediaField(bgImageField);
-
-		var formBgImageField = document.querySelector(
-			".cldashboard-form-bg-image-field"
-		);
-		if (formBgImageField) setupMediaField(formBgImageField);
-
-		var logoImageField = document.querySelector(
-			".cldashboard-logo-image-field"
-		);
-		if (logoImageField) setupMediaField(logoImageField);
+		[].slice
+			.call(document.querySelectorAll(".cldashboard-media-field"))
+			.forEach(setupMediaField);
 
 		setupChainingFields();
 
@@ -121,7 +112,9 @@
 	function setupTabsNavigation() {
 		$(".heatbox-tab-nav-item").on("click", function () {
 			$(".heatbox-tab-nav-item").removeClass("active");
+			$(".heatbox-tab-nav-item a").removeAttr("aria-current");
 			$(this).addClass("active");
+			$(this).find("a").attr("aria-current", "page");
 
 			var link = this.querySelector("a");
 
@@ -172,9 +165,10 @@
 			}
 
 			$(".heatbox-tab-nav-item").removeClass("active");
-			$(".heatbox-tab-nav-item.cldashboard-" + hashValue + "-panel").addClass(
-				"active"
-			);
+			$(".heatbox-tab-nav-item.cldashboard-" + hashValue + "-panel")
+				.addClass("active")
+				.find("a")
+				.attr("aria-current", "page");
 
 			$(".heatbox-form-container .heatbox-admin-panel").css("display", "none");
 
@@ -193,9 +187,9 @@
 
 		wpMedia = wp
 			.media({
-				title: "Choose Background Image",
+				title: CustomLoginDashboard.i18n.chooseImage,
 				button: {
-					text: "Upload Image",
+					text: CustomLoginDashboard.i18n.useImage,
 				},
 				multiple: false, // Set this to true to allow multiple files to be selected
 			})
@@ -400,7 +394,7 @@
 				if (!r || !r.success) return;
 				submitNotice.classList.add("is-success");
 				submitNotice.classList.remove("is-error");
-				submitNotice.innerHTML = r.data;
+				submitNotice.textContent = r.data;
 			})
 			.fail(function (jqXHR) {
 				var errorMesssage = "Something went wrong";
@@ -411,7 +405,7 @@
 
 				submitNotice.classList.remove("is-success");
 				submitNotice.classList.add("is-error");
-				submitNotice.innerHTML = errorMesssage;
+				submitNotice.textContent = errorMesssage;
 			})
 			.always(function () {
 				submitNotice.classList.add("is-shown");
@@ -452,7 +446,7 @@
 				resetForm();
 				resetNotice.classList.add("is-success");
 				resetNotice.classList.remove("is-error");
-				resetNotice.innerHTML = r.data;
+				resetNotice.textContent = r.data;
 			})
 			.fail(function (jqXHR) {
 				var errorMesssage = "Something went wrong";
@@ -463,7 +457,7 @@
 
 				resetNotice.classList.remove("is-success");
 				resetNotice.classList.add("is-error");
-				resetNotice.innerHTML = errorMesssage;
+				resetNotice.textContent = errorMesssage;
 			})
 			.always(function () {
 				resetNotice.classList.add("is-shown");
@@ -472,7 +466,7 @@
 
 				setTimeout(function () {
 					resetNotice.classList.remove("is-shown");
-					resetNotice.innerHTML = "";
+					resetNotice.textContent = "";
 				}, 3000);
 			});
 	}
@@ -533,7 +527,7 @@
 				populateForm(r.data.settings);
 				resetNotice.classList.add("is-success");
 				resetNotice.classList.remove("is-error");
-				resetNotice.innerHTML = r.data.message;
+				resetNotice.textContent = r.data.message;
 			})
 			.fail(function (jqXHR) {
 				var errorMesssage = "Something went wrong";
@@ -544,7 +538,7 @@
 
 				resetNotice.classList.remove("is-success");
 				resetNotice.classList.add("is-error");
-				resetNotice.innerHTML = errorMesssage;
+				resetNotice.textContent = errorMesssage;
 			})
 			.always(function () {
 				resetNotice.classList.add("is-shown");
@@ -553,7 +547,7 @@
 
 				setTimeout(function () {
 					resetNotice.classList.remove("is-shown");
-					resetNotice.innerHTML = "";
+					resetNotice.textContent = "";
 				}, 3000);
 			});
 	}

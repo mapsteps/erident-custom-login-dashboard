@@ -28,10 +28,12 @@ class Load_Default_Settings {
 	 */
 	public function load_default_settings() {
 
-		$nonce = isset( $_POST['nonce'] ) ? $_POST['nonce'] : '';
-
-		if ( ! wp_verify_nonce( $nonce, 'cldashboard_nonce_load_default_settings' ) ) {
+		if ( ! check_ajax_referer( 'cldashboard_nonce_load_default_settings', 'nonce', false ) ) {
 			wp_send_json_error( __( 'Invalid token', 'erident-custom-login-and-dashboard' ), 401 );
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( __( 'You are not allowed to do this', 'erident-custom-login-and-dashboard' ), 403 );
 		}
 
 		$default_settings = cldashboard_get_field_default_values();

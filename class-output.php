@@ -7,8 +7,6 @@
 
 namespace CustomLoginDashboard;
 
-use ariColor;
-
 /**
  * Setup Better Admin Bar output.
  */
@@ -75,9 +73,11 @@ class Output {
 	public function left_footer_text( $text ) {
 
 		$settings = get_option( 'plugin_erident_settings', [] );
-		$text     = isset( $settings['dashboard_data_left'] ) && ! empty( $settings['dashboard_data_left'] ) ? $settings['dashboard_data_left'] : $text;
+		if ( empty( $settings['dashboard_data_left'] ) ) {
+			return $text;
+		}
 
-		return stripslashes( $text );
+		return wp_kses_post( stripslashes( $settings['dashboard_data_left'] ) );
 
 	}
 
@@ -89,9 +89,11 @@ class Output {
 	public function right_footer_text( $content ) {
 
 		$settings = get_option( 'plugin_erident_settings', [] );
-		$text     = isset( $settings['dashboard_data_right'] ) && ! empty( $settings['dashboard_data_right'] ) ? $settings['dashboard_data_right'] : $content;
+		if ( empty( $settings['dashboard_data_right'] ) ) {
+			return $content;
+		}
 
-		return stripslashes( $text );
+		return wp_kses_post( stripslashes( $settings['dashboard_data_right'] ) );
 
 	}
 
@@ -104,12 +106,7 @@ class Output {
 		$print_css = require __DIR__ . '/inc/login.css.php';
 
 		echo '<style>';
-
-		ob_start();
-		$print_css( $settings );
-		$output = ob_get_clean();
-		echo $output;
-
+		$print_css( $settings ); // Values are sanitized & escaped in the template.
 		echo '</style>';
 
 	}
@@ -131,10 +128,13 @@ class Output {
 	 */
 	public function login_logo_title( $headertext ) {
 
-		$settings   = get_option( 'plugin_erident_settings' );
-		$logo_title = isset( $settings['dashboard_power_text'] ) && ! empty( $settings['dashboard_power_text'] ) ? $settings['dashboard_power_text'] : $headertext;
+		$settings = get_option( 'plugin_erident_settings' );
+		if ( empty( $settings['dashboard_power_text'] ) ) {
+			return $headertext;
+		}
 
-		return $logo_title;
+		// Core prints this unescaped.
+		return esc_html( $settings['dashboard_power_text'] );
 
 	}
 

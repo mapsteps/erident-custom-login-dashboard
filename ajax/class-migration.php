@@ -1,8 +1,8 @@
 <?php
 /**
- * Change widget order.
+ * Migration to Ultimate Dashboard.
  *
- * @package Swift_Control
+ * @package Custom_Login_Dashboard
  */
 
 namespace CustomLoginDashboard\Ajax;
@@ -25,6 +25,23 @@ class Migration {
 	public function __construct() {
 
 		add_action( 'wp_ajax_cldashboard_migration', [ $this, 'handler' ] );
+		add_action( 'wp_ajax_cldashboard_dismiss_migration_notice', [ $this, 'dismiss_notice' ] );
+
+	}
+
+	/**
+	 * Dismiss the migration notice for the current user.
+	 */
+	public function dismiss_notice() {
+
+		if ( ! check_ajax_referer( 'cldashboard_nonce_dismiss_migration_notice', 'nonce', false ) ) {
+			wp_send_json_error( __( 'Invalid token', 'erident-custom-login-and-dashboard' ), 401 );
+		}
+
+		// Store when, so it comes back 2 months later.
+		update_user_meta( get_current_user_id(), 'cldashboard_migration_notice_dismissed', time() );
+
+		wp_send_json_success();
 
 	}
 
@@ -39,79 +56,39 @@ class Migration {
 	}
 
 	/**
-	 * Validate the data.
+	 * Validate the request & check if the migration can run.
 	 */
 	private function validate() {
 
-		// Check if nonce is incorrect.
 		if ( ! check_ajax_referer( 'cldashboard_nonce_migration', 'nonce', false ) ) {
 			wp_send_json_error( __( 'Invalid token', 'erident-custom-login-and-dashboard' ), 401 );
 		}
 
-		// Check against old plugin basename existence.
-		if ( ! isset( $_POST['old_plugin_basename'] ) || empty( $_POST['old_plugin_basename'] ) ) {
-			wp_send_json_error( __( 'Old plugin basename is not specified', 'erident-custom-login-and-dashboard' ), 401 );
+		if ( ! cldashboard_can_migrate() ) {
+			wp_send_json_error( __( 'You are not allowed to do this', 'erident-custom-login-and-dashboard' ), 403 );
 		}
 
-		if (
-			defined( 'ULTIMATE_DASHBOARD_PLUGIN_VERSION' )
-			|| file_exists( WP_CONTENT_DIR . '/plugins/ultimate-dashboard/ultimate-dashboard.php' )
-		) {
+		if ( cldashboard_is_udb_installed() ) {
 			wp_send_json_error(
-				__(
-					'You already have Ultimate Dashboard installed. You may want to uninstall Ultimate Dashboard manually and start the migration again. Make sure the "Remove Data on Uninstall" option in Ultimate Dashboard is NOT checked so that your existing Ultimate Dashboard settings will stay in place.',
-					'erident-custom-login-and-dashboard'
-				),
-				401
+				__( 'Ultimate Dashboard is already installed. To migrate, delete Ultimate Dashboard first, then start the migration again. Make sure the "Remove Data on Uninstall" option in Ultimate Dashboard is NOT checked, so your Ultimate Dashboard settings stay in place.', 'erident-custom-login-and-dashboard' ),
+				409
 			);
 		}
 
-		if ( ! function_exists( 'fsockopen' ) ) {
-			wp_send_json_error(
-				__(
-					'Your server does not have the fsockopen function enabled. This is required to check the internet connection. Please contact your host and ask them to enable this function.',
-					'erident-custom-login-and-dashboard'
-				),
-				503
-			);
+		// Erident gets deleted & Ultimate Dashboard installed, so WordPress must be able to write plugin files without asking for credentials.
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+
+		if ( ! WP_Filesystem() ) {
+			wp_send_json_error( __( 'WordPress cannot install plugins automatically on this server. Please install Ultimate Dashboard manually.', 'erident-custom-login-and-dashboard' ), 503 );
 		}
 
-		$internet_connected = $this->is_internet_connected();
-		$internet_connected = ! $internet_connected ? $this->is_internet_connected( 443 ) : $internet_connected;
-
-		// Check against internet connection.
-		if ( ! $internet_connected ) {
-			wp_send_json_error( 'Seems like you are not connected to the internet. A stable connection is required to download the Ultimate Dashboard plugin.<br>Please check your internet connection. If you are using a proxy, try to disable it.', 503 );
+		// Check that Ultimate Dashboard can be downloaded before anything is removed.
+		if ( is_wp_error( wp_remote_head( 'https://api.wordpress.org/', [ 'timeout' => 10 ] ) ) ) {
+			wp_send_json_error( __( 'WordPress.org cannot be reached, so Ultimate Dashboard cannot be downloaded. Please check your internet connection. If you use a proxy, try to disable it.', 'erident-custom-login-and-dashboard' ), 503 );
 		}
 
-		$this->old_plugin_basename = sanitize_text_field( $_POST['old_plugin_basename'] );
-	}
-
-	/**
-	 * Check if the internet is connected.
-	 *
-	 * Thanks to Alfred <https://stackoverflow.com/users/484082/alfred>
-	 *
-	 * @link https://stackoverflow.com/questions/4860365/determine-in-php-script-if-connected-to-internet#answer-4860432
-	 *
-	 * @param int $port The port to check.
-	 * @return bool
-	 */
-	private function is_internet_connected( $port = 80 ) {
-
-		// Website, port (try 80 or 443).
-		$connected = @fsockopen( 'google.com', 80 );
-
-		if ( $connected ) {
-			// Action when connected.
-			$is_connected = true;
-			fclose( $connected );
-		} else {
-			// Action in connection failure.
-			$is_connected = false;
-		}
-
-		return $is_connected;
+		// Never take this from the request: it's the plugin that gets deleted.
+		$this->old_plugin_basename = CUSTOM_LOGIN_DASHBOARD_PLUGIN_BASENAME;
 
 	}
 
@@ -121,7 +98,7 @@ class Migration {
 	private function migrate() {
 
 		if ( ! file_exists( WP_PLUGIN_DIR . '/' . $this->old_plugin_basename ) ) {
-			wp_send_json_error( __( 'Erident Custom Login & Dashboard plugin is not found', 'erident-custom-login-and-dashboard' ), 403 );
+			wp_send_json_error( __( 'Erident Custom Login & Dashboard plugin was not found', 'erident-custom-login-and-dashboard' ), 403 );
 		}
 
 		$this->migrate_settings();
@@ -135,7 +112,7 @@ class Migration {
 		if ( $deletion && ! is_wp_error( $deletion ) ) {
 			// If the plugin is deleted successfully, let's delete the option.
 			delete_option( 'plugin_erident_settings' );
-			wp_send_json_success( __( 'Erident Custom Login & Dashboard plugin has been removed', 'erident-custom-login-and-dashboard' ) );
+			wp_send_json_success( __( 'Erident Custom Login & Dashboard has been removed.', 'erident-custom-login-and-dashboard' ) );
 		} elseif ( is_wp_error( $deletion ) ) {
 			wp_send_json_error( $deletion->get_error_message(), 403 );
 		} elseif ( null === $deletion ) {
@@ -163,7 +140,7 @@ class Migration {
 
 		$udb_general_options  = get_option( 'udb_settings', [] );
 		$udb_branding_options = get_option( 'udb_branding', [] );
-		$erident_options      = get_option( 'plugin_erident_settings', [] );
+		$erident_options      = $this->get_erident_settings();
 
 		if ( empty( $erident_options ) ) {
 			return;
@@ -217,7 +194,7 @@ class Migration {
 	private function migrate_login_settings() {
 
 		$udb_login_options = get_option( 'udb_login', [] );
-		$erident_options   = get_option( 'plugin_erident_settings', [] );
+		$erident_options   = $this->get_erident_settings();
 
 		$udb_login_options['logo_url'] = get_bloginfo( 'url' );
 
@@ -273,62 +250,19 @@ class Migration {
 			$udb_login_options['bg_repeat'] = $bg_repeat;
 		}
 
-		$horizontal_bg_pos = isset( $erident_options['top_bg_xpos'] ) && ! empty( $erident_options['top_bg_xpos'] ) ? $erident_options['top_bg_xpos'] : '';
-		$horizontal_bg_pos = trim( $horizontal_bg_pos );
-
-		$vertical_bg_pos = isset( $erident_options['top_bg_ypos'] ) && ! empty( $erident_options['top_bg_ypos'] ) ? $erident_options['top_bg_ypos'] : '';
-		$vertical_bg_pos = trim( $vertical_bg_pos );
-
-		$bg_position        = $horizontal_bg_pos . ' ' . $vertical_bg_pos;
-		$bg_custom_position = '';
-
-		$udb_bg_positions = array(
-			'left top',
-			'left center',
-			'left bottom',
-			'center top',
-			'center center',
-			'center bottom',
-			'right top',
-			'right center',
-			'right bottom',
-			'custom',
-		);
-
-		if ( ! in_array( $bg_position, $udb_bg_positions, true ) ) {
-			$bg_custom_position = $bg_position;
-			$bg_position        = 'custom';
-		}
+		$bg_position = $this->get_bg_position( $erident_options, 'top_bg_xpos', 'top_bg_ypos' );
 
 		if ( $bg_position ) {
-			$udb_login_options['bg_position'] = $bg_position;
+			$udb_login_options = array_merge( $udb_login_options, $this->prefix_keys( $bg_position, 'bg_' ) );
 		}
 
-		if ( $bg_custom_position ) {
-			$udb_login_options['bg_custom_position'] = $bg_custom_position;
-		}
+		$bg_size = isset( $erident_options['top_bg_size'] ) ? trim( $erident_options['top_bg_size'] ) : '';
 
-		$bg_size        = isset( $erident_options['top_bg_size'] ) && ! empty( $erident_options['top_bg_size'] ) ? $erident_options['top_bg_size'] : '';
-		$bg_custom_size = '';
-
-		$udb_bg_sizes = array(
-			'auto',
-			'cover',
-			'contain',
-			'custom',
-		);
-
-		if ( ! in_array( $bg_size, $udb_bg_sizes, true ) ) {
-			$bg_custom_size = $bg_position;
-			$bg_size        = 'custom';
-		}
-
-		if ( $bg_size ) {
+		if ( in_array( $bg_size, [ 'auto', 'cover', 'contain' ], true ) ) {
 			$udb_login_options['bg_size'] = $bg_size;
-		}
-
-		if ( $bg_custom_size ) {
-			$udb_login_options['bg_custom_size'] = $bg_custom_size;
+		} elseif ( '' !== $bg_size ) {
+			$udb_login_options['bg_size']        = 'custom';
+			$udb_login_options['bg_custom_size'] = $bg_size;
 		}
 
 		$form_width = isset( $erident_options['dashboard_login_width'] ) && ! empty( $erident_options['dashboard_login_width'] ) ? $erident_options['dashboard_login_width'] : '';
@@ -389,8 +323,7 @@ class Migration {
 			$form_bg_opacity = '' !== $erident_options['dashboard_login_bg_opacity'] ? $erident_options['dashboard_login_bg_opacity'] : 1; // 0 is allowed here.
 
 			if ( false === stripos( $form_bg_color, 'rgba' ) && 1 > $form_bg_opacity ) {
-				$form_bg_color = \ariColor::newColor( $form_bg_color );
-				$form_bg_color = $form_bg_color->getNew( 'alpha', $form_bg_opacity )->toCSS( 'rgba' );
+				$form_bg_color = cldashboard_color_with_alpha( $form_bg_color, $form_bg_opacity );
 			}
 		}
 
@@ -410,26 +343,10 @@ class Migration {
 			$udb_login_options['form_bg_repeat'] = $form_bg_repeat;
 		}
 
-		$form_horizontal_bg_pos = isset( $erident_options['login_bg_xpos'] ) && ! empty( $erident_options['login_bg_xpos'] ) ? $erident_options['login_bg_xpos'] : '';
-		$form_horizontal_bg_pos = trim( $form_horizontal_bg_pos );
-
-		$form_vertical_bg_pos = isset( $erident_options['login_bg_ypos'] ) && ! empty( $erident_options['login_bg_ypos'] ) ? $erident_options['login_bg_ypos'] : '';
-		$form_vertical_bg_pos = trim( $form_vertical_bg_pos );
-
-		$form_bg_position        = $form_horizontal_bg_pos . ' ' . $form_horizontal_bg_pos;
-		$form_bg_custom_position = '';
-
-		if ( ! in_array( $form_bg_position, $udb_bg_positions, true ) ) {
-			$form_bg_custom_position = $form_bg_position;
-			$form_bg_position        = 'custom';
-		}
+		$form_bg_position = $this->get_bg_position( $erident_options, 'login_bg_xpos', 'login_bg_ypos' );
 
 		if ( $form_bg_position ) {
-			$udb_login_options['form_bg_position'] = $form_bg_position;
-		}
-
-		if ( $form_bg_custom_position ) {
-			$udb_login_options['form_bg_custom_position'] = $form_bg_custom_position;
+			$udb_login_options = array_merge( $udb_login_options, $this->prefix_keys( $form_bg_position, 'form_bg_' ) );
 		}
 
 		$labels_color = isset( $erident_options['dashboard_text_color'] ) && ! empty( $erident_options['dashboard_text_color'] ) ? $erident_options['dashboard_text_color'] : '';
@@ -465,8 +382,7 @@ class Migration {
 		$button_bg_color_hover = '';
 
 		if ( $button_bg_color ) {
-			$button_bg_color_hover = \ariColor::newColor( $button_bg_color );
-			$button_bg_color_hover = $button_bg_color_hover->getNew( 'alpha', 0.9 )->toCSS( 'rgba' );
+			$button_bg_color_hover = cldashboard_color_with_alpha( $button_bg_color, 0.9 );
 
 			$udb_login_options['button_bg_color']       = $button_bg_color;
 			$udb_login_options['button_bg_color_hover'] = $button_bg_color_hover;
@@ -522,6 +438,75 @@ class Migration {
 		}
 
 		update_option( 'udb_login', $udb_login_options );
+
+	}
+
+	/**
+	 * Get the Erident settings, sanitized.
+	 *
+	 * Older versions saved them unsanitized.
+	 *
+	 * @return array
+	 */
+	private function get_erident_settings() {
+
+		$settings = get_option( 'plugin_erident_settings', [] );
+
+		return is_array( $settings ) ? cldashboard_sanitize_settings( $settings ) : [];
+
+	}
+
+	/**
+	 * Convert an Erident background position to Ultimate Dashboard's format.
+	 *
+	 * @param array  $settings The Erident settings.
+	 * @param string $x_key    The horizontal position key.
+	 * @param string $y_key    The vertical position key.
+	 *
+	 * @return array The "position" & maybe "custom_position", or empty if not set.
+	 */
+	private function get_bg_position( $settings, $x_key, $y_key ) {
+
+		$x = isset( $settings[ $x_key ] ) ? trim( $settings[ $x_key ] ) : '';
+		$y = isset( $settings[ $y_key ] ) ? trim( $settings[ $y_key ] ) : '';
+
+		if ( '' === $x && '' === $y ) {
+			return [];
+		}
+
+		// A missing value means "center" in CSS.
+		$position = ( '' === $x ? 'center' : $x ) . ' ' . ( '' === $y ? 'center' : $y );
+
+		$udb_positions = [ 'left top', 'left center', 'left bottom', 'center top', 'center center', 'center bottom', 'right top', 'right center', 'right bottom' ];
+
+		if ( in_array( $position, $udb_positions, true ) ) {
+			return [ 'position' => $position ];
+		}
+
+		return [
+			'position'        => 'custom',
+			'custom_position' => $position,
+		];
+
+	}
+
+	/**
+	 * Prefix the keys of an array.
+	 *
+	 * @param array  $values The values.
+	 * @param string $prefix The prefix.
+	 *
+	 * @return array
+	 */
+	private function prefix_keys( $values, $prefix ) {
+
+		$prefixed = [];
+
+		foreach ( $values as $key => $value ) {
+			$prefixed[ $prefix . $key ] = $value;
+		}
+
+		return $prefixed;
 
 	}
 

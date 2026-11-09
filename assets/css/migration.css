@@ -1,127 +1,112 @@
-@-webkit-keyframes cldashboardLoadingSpinAround {
-	from {
-		transform: rotate(0);
-	}
-	to {
-		transform: rotate(359deg);
-	}
-}
-
-@keyframes cldashboardLoadingSpinAround {
-	from {
-		transform: rotate(0);
-	}
-	to {
-		transform: rotate(359deg);
-	}
-}
-
 /**
- * --------------------------------------------------
- * Migration Notice
- * --------------------------------------------------
+ * Migration to Ultimate Dashboard: settings box & admin notice.
  */
+
+@keyframes cldashboardSpin {
+	from {
+		transform: rotate(0);
+	}
+	to {
+		transform: rotate(359deg);
+	}
+}
+
+/* Notice on the Dashboard & Plugins screens */
 .cldashboard-migration-notice {
-	padding: 25px 20px;
-}
-
-.cldashboard-migration-notice .notice-body {
 	display: flex;
+	align-items: flex-start;
+	gap: 16px;
+	padding-top: 12px;
+	padding-bottom: 12px;
 }
 
-.cldashboard-migration-notice .notice-icon {
-	padding-right: 25px;
+.cldashboard-migration-icon {
+	flex: 0 0 auto;
+	width: 40px;
+	height: auto;
+	margin-top: 6px;
 }
 
-.cldashboard-migration-notice .notice-icon img {
-	max-width: 55px;
+.cldashboard-migration-notice p {
+	margin: 4px 0;
 }
 
-.cldashboard-migration-notice .notice-content {
+/* Settings page box */
+.cldashboard-migration-box {
+	border-inline-start: 4px solid var(--heatbox-primary, #2271b1);
+}
+
+.cldashboard-migration-image {
+	display: block;
 	width: 100%;
+	height: auto;
+	margin: 16px 0;
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
 }
 
-.cldashboard-migration-notice .notice-content h2 {
+.cldashboard-migration-benefits {
+	margin: 0 0 16px 1.5em;
+	list-style: disc;
+}
+
+.cldashboard-migration-content > p:first-child {
 	margin-top: 0;
-	margin-bottom: 10px;
-	font-weight: 700;
 }
 
-.cldashboard-migration-notice .notice-content > p {
-	margin-top: 0;
-	margin-bottom: 10px;
+.cldashboard-migration .cldashboard-migration-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 16px;
+	margin-top: 12px;
 }
 
-.cldashboard-migration-notice .notice-content > p:last-child {
-	margin-bottom: 0;
-}
-
-/**
- * --------------------------------------------------
- * Migration Status
- * --------------------------------------------------
- */
+/* Migration progress */
 .cldashboard-migration-statuses {
-	margin-top: 7px;
-	margin-bottom: 8px;
+	margin: 0;
 }
 
 .cldashboard-migration-status {
 	display: none;
-	margin-bottom: 3px;
+	align-items: center;
+	gap: 6px;
+	margin: 8px 0 0;
+}
+
+.cldashboard-migration-status.is-waiting,
+.cldashboard-migration-status.is-done {
+	display: flex;
+}
+
+.cldashboard-migration-status .dashicons {
+	color: #00a32a;
 }
 
 .cldashboard-migration-status.migration-failed,
-.cldashboard-migration-status.migration-failed i {
-	color: tomato;
+.cldashboard-migration-status.migration-failed .dashicons {
+	color: #b32d2e;
 }
 
-.cldashboard-migration-status i {
-	color: rgb(39, 223, 39);
-}
-
-.cldashboard-migration-status.is-waiting {
-	display: block;
-}
-
-.cldashboard-migration-status.is-waiting i {
+.cldashboard-migration-status .loader,
+.cldashboard-migration-status.is-waiting .dashicons {
 	display: none;
-}
-
-.cldashboard-migration-status .loader {
-	display: none;
-	position: relative;
-	bottom: -4px;
-	margin-right: 5px;
-	width: 14px;
-	height: 14px;
-	align-items: center;
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
 }
 
 .cldashboard-migration-status.is-waiting .loader {
-	display: inline-flex;
-	justify-content: center;
-	color: transparent !important;
-	pointer-events: none;
+	display: block;
+	flex: 0 0 auto;
+	width: 14px;
+	height: 14px;
+	margin: 3px;
+	border: 2px solid #c3c4c7;
+	border-left-color: transparent;
+	border-radius: 50%;
+	animation: cldashboardSpin 0.6s infinite linear;
 }
 
-.cldashboard-migration-status.is-waiting .loader::after {
-	content: "";
-	position: absolute;
-	width: 1em;
-	display: block;
-	height: 1em;
-	border: 2px solid #bbb;
-	border-color: transparent transparent #aaa #aaa !important;
-	border-radius: 290486px;
-	-webkit-animation: cldashboardLoadingSpinAround 0.5s infinite linear;
-	animation: cldashboardLoadingSpinAround 0.5s infinite linear;
-}
-
-.cldashboard-migration-status.is-done {
-	display: block;
+@media (prefers-reduced-motion: reduce) {
+	.cldashboard-migration-status.is-waiting .loader {
+		animation-duration: 2s;
+	}
 }
